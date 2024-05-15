@@ -1,12 +1,22 @@
 # <img src="https://objectreef.dev/reef.png" width="25" />  The Octopus Basic 
-This is the most basic demonstration application made with ObjectReef technology. Although it is very simple and does not contain much source code, it meets the requirements of a complete and functional service. The sample is released under the terms of the MIT license, the content of which you can find [here](./LICENSE.md).
+
+This is the basic demo application made for ObjectReef service. Although it is very simple and does not contain much source code, it meets the requirements of a complete and functional SPA. The sample is released under the terms of the MIT license, the content of which you can find [here](./LICENSE.md).
+
+The application is used for simple tasks management. They can be organized in lists and presented as a flat datagrid as well as a kanban board. Each task can have a description, checklist, tags or required completion date. It is also possible to assign responsibility to different people and present tasks assigned to a signed-in user. Tasks as well as entire lists can also be archived.
+
+Sample screens:
+
+<img src="doc/daragrid.png" width="640" alt="datagrid"/>
+<img src="doc/kanban.png" width="640" alt="kanban"/>
+<img src="doc/task.png" width="640" alt="task"/>
+
 
 **NOTE:** This is only frontend part of the application. Backend source code you can find at [https://github.com/HumanDialog/octopus.mini.reef](https://github.com/HumanDialog/octopus.mini.reef)
 
 ## Prerequisites
 The website requires backend service launched on your local machine. To launch backend service see https://github.com/HumanDialog/octopus.mini.reef/README.md first.
 
-This sample based on [Svelte framework](https://svelte.dev/) therefore requires [node.js](https://nodejs.org/en) installed on your local machine.
+This sample based on [Svelte](https://svelte.dev/) therefore requires [node.js](https://nodejs.org/en) installed on your local machine.
 
 ## Launch
 In the repository root directory run  
@@ -14,6 +24,38 @@ In the repository root directory run
 and then  
 `npm run dev`
 
+Note that this project is only an SPA application and still needs the API service running for proper operation. You can find a repository of the backend service at https://github.com/HumanDialog/octopus.mini.reef. In the description of this project you will find more details, including how to run, compile and fill-in with sample data.
+
+Make sure that the address of the local API service is correct. You can find the setting in the `App.svelte` file:
+```js
+    reef.configure( {
+        mode: 'local',
+        ...
+        local: {
+            api:    "http://127.0.0.1:1996/",
+```
+
+In case you would like to deploy an application based on this one, be sure to set the Identity Provider parameters correctly. According to OAuth2 standards, the application should be registered as a client width `clientID` and `clientSecret`. For more information about registering new client, see [ObjectReef documentation](https://objectreef.dev/doc/reef-cli-402/app-management-commands-reef-add-client). 
+
+The parameters of the registered client, such as `clientID` and `clientSecret` must be entered in the `App.svelte` file`:
+```js
+    reef.configure( {
+        mode: 'remote',
+        remote: {
+            iss :      "https://objectreef.io",
+            clientID : "REGISTERED_CLIENT_ID",
+            clientSecret: "REGISTERED_CLIENT_SECRET",
+            scope :     "openid profile email DEPLOYED_REEF_APP_ID",
+            apiVersion: "v001"
+            ...
+``` 
+
+Note that switching between API connection on `localhost` and deployed service is possible through the `mode` parameter:
+```js
+    reef.configure( {
+        mode: 'remote', // or 'local'
+        ...      
+``` 
 
 The detailed description of the source code you can find on ObjectReef website at https://objectreef.dev/samples/octopus-basic.
 
