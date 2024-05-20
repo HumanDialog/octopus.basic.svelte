@@ -250,7 +250,7 @@
                 contextMenu={taskContextMenu}
                 orderAttrib='UserOrder'
                 bind:this={listComponent}>
-            <ListTitle a='Title'/>
+            <ListTitle a='Title' hrefFunc={(task) => `/task/${task.Id}`}/>
             <ListSummary a='Summary'/>
             <ListInserter action={addTask} icon/>
 

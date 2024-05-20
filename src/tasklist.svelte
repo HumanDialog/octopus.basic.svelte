@@ -252,7 +252,7 @@
 
     function onOpen(task)
     {
-        push(`/task?ref=${task.$ref}`);
+        push(`/task/${task.Id}`);
     }
 
     let taskOperations = (task) => { 
@@ -325,7 +325,7 @@
                 contextMenu={taskContextMenu}
                 orderAttrib='ListOrder'
                 bind:this={listComponent}>
-            <ListTitle a='Title' {onOpen}/>
+            <ListTitle a='Title' hrefFunc={(task) => `/task/${task.Id}`}/>
             <ListSummary a='Summary'/>
             <ListInserter action={addTask} icon/>
 

@@ -7,16 +7,16 @@
             DatePicker,
             Tags,
             editable,
-			startEditing,
+			saveCurrentEditable,
 			activateItem,
 			isActive,
 			clearActiveItem,
 			isDeviceSmallerThan
             } from '@humandialog/forms.svelte'
 	import { onMount, tick } from 'svelte';
-    import {querystring} from 'svelte-spa-router'
+    import {location, querystring} from 'svelte-spa-router'
     import TaskSteps from './task.steps.svelte'
-    import {FaPlus,FaAlignLeft,FaCheck, FaTag,FaUser,FaCalendarAlt,FaUndo, FaFont} from 'svelte-icons/fa/'
+    import {FaPlus,FaAlignLeft,FaCheck, FaTag,FaUser,FaCalendarAlt,FaUndo, FaSave} from 'svelte-icons/fa/'
 
     let taskRef = ''
     let task = null;
@@ -24,12 +24,17 @@
     let allLists = [];
     let allActors = [];
 
-    $: onParamsChanged($querystring)
+    $: onParamsChanged($location)
 
     async function onParamsChanged(...args)
     {
-        let params = new URLSearchParams($querystring);
-        taskRef = params.get('ref') ?? ''
+        const segments = $location.split('/');
+        const foundIdx = segments.findIndex( s => s == 'task');
+        if(foundIdx < 0)
+            return;
+
+        const taskId = segments[segments.length-1]
+        taskRef = `./Task/${taskId}`
 
         allTags = await reef.get('/app/AllTags');
 
@@ -170,6 +175,14 @@
                 grid: addOperations
             }
         ];
+
+        if(!isDeviceSmallerThan('sm'))
+        {
+            operations.push({
+                icon: FaSave,
+                action: (f) => saveCurrentEditable()
+            })
+        }
 
         if(step.Done)
         {
@@ -351,13 +364,26 @@
         }
     ];
     
-    const pageOperations = [
+    function getPageOperations()
+    {
+        let operations = [
+            {
+                icon: FaPlus,
+                grid: addOperations 
+            }
+        ]
+
+        if(!isDeviceSmallerThan('sm'))
         {
-            icon: FaPlus,
-            caption: '',
-            grid: addOperations
+            operations.push({
+                icon: FaSave,
+                action: (f) => saveCurrentEditable()
+            })
         }
-    ]
+
+        return operations;
+    }
+    
 
     function getPageOperationsWithFormattingTools() 
     {
@@ -365,11 +391,11 @@
         if(mobile)
         {
             return [
-                {
+                /*{
                     icon: FaFont,
-                    menu: description.getFormattingOperations(true),
-                    aboveKeyboard: true 
-                }
+                    //aboveKeyboard: true,
+                    menu: description.getFormattingOperations(true)
+                }*/
             ]
         }
         else
@@ -380,13 +406,20 @@
                 grid: addOperations
             };
 
+            const saveOperation = {
+                icon: FaSave,
+                action: (f) => { description?.save() }
+            }
+
             const separator = {
                 separator: true
             }
 
-            const formatting_operations = description.getFormattingOperations();
+            let formatting_operations = description.getFormattingOperations();
+            if(!isDeviceSmallerThan('sm'))
+                formatting_operations = [saveOperation, ...formatting_operations]
 
-            let operations = [add_operation, separator, ...formatting_operations]
+            let operations = [add_operation,  separator, ...formatting_operations]
             return operations
         }
     }
@@ -410,7 +443,7 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-noninteractive-tabindex-->
 <Page   self={task} 
-            toolbarOperations={pageOperations}
+            toolbarOperations={getPageOperations()}
             clearsContext=''
             title={task.Title}>
     <section class="w-full flex justify-center">

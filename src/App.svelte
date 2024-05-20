@@ -4,7 +4,7 @@
     import TaskList from './tasklist.svelte'
     import Sidebar from './sidebar.svelte'  
     import {Layout} from '@humandialog/forms.svelte'
-    import {reef} from '@humandialog/auth.svelte'
+    import {reef, session} from '@humandialog/auth.svelte'
     import Members from './members.svelte'
     import {push} from 'svelte-spa-router'
     import AppIcon from './appicon.svelte'
@@ -59,6 +59,7 @@
                         {
                             caption: 'Members',
                             icon: FaUsers,
+                            condition: () => ($session.authAccessGroup() & 0x1) != 0,
                             action: (focused) => { push('/members') }
                         }
                     ]
