@@ -4,6 +4,7 @@
             Page,
             Combo,
             ComboSource,
+            ComboItem,
             DatePicker,
             Tags,
             editable,
@@ -23,6 +24,7 @@
     let allTags = '';
     let allLists = [];
     let allActors = [];
+    let availableStates = [];
 
     $: onParamsChanged($location)
 
@@ -62,7 +64,7 @@
                                 {
                                     Id: 1,
                                     Association: '',
-                                    Expressions:['Id', 'Index', 'Title','Summary', 'Description', 'DueDate', 'Tags', '$ref', '$type'],
+                                    Expressions:['Id', 'Index', 'Title','Summary', 'Description', 'DueDate', 'Tags', 'State', '$ref', '$type'],
                                     SubTree:[
                                         {
                                             Id: 10,
@@ -77,7 +79,7 @@
                                         {
                                             Id: 12,
                                             Association: 'TaskList',
-                                            Expressions:['$ref', 'Name']
+                                            Expressions:['$ref', 'Name', 'TaskStates']
                                         }
                                     ]
                                 }
@@ -85,6 +87,22 @@
                         })
         
         task = res.Task
+        if(task.TaskList.TaskStates)
+        {
+            try{
+                availableStates = JSON.parse(task.TaskList.TaskStates);
+                availableStates.forEach( e => {
+                    if(e.state == 1000)
+                        e.icon = FaCheck;
+                    else
+                        e.icon = null;
+                })
+            }
+            catch(e)
+            {
+                availableStates = [];
+            }
+        }
     }
 
     async function onTitleChanged(text)
@@ -400,7 +418,7 @@
         }
         else
         {
-            const add_operation = {
+            const addOperation = {
                 icon: FaPlus,
                 caption: '',
                 grid: addOperations
@@ -415,11 +433,11 @@
                 separator: true
             }
 
-            let formatting_operations = description.getFormattingOperations();
+            let formattingOperations = description.getFormattingOperations();
             if(!isDeviceSmallerThan('sm'))
-                formatting_operations = [saveOperation, ...formatting_operations]
+                formattingOperations = [saveOperation, ...formattingOperations]
 
-            let operations = [add_operation,  separator, ...formatting_operations]
+            let operations = [addOperation,  separator, ...formattingOperations]
             return operations
         }
     }
@@ -480,7 +498,8 @@
                     </div>
             </section>
 
-            <h1 use:editable={{
+            <h1     class="font-normal text-4xl"
+                    use:editable={{
                         action: (text) => onTitleChanged(text), 
                         active: true}}
                         tabindex="0">
@@ -488,7 +507,7 @@
             </h1>
             
             {#if task.Actor || responsiblePlaceholder || task.Tags || tagsPlaceholder}
-                <section class="not-prose h-6 w-full flex flex-row">
+                <section class="not-prose h-6 w-full flex flex-row justify-between">
                     <div class="grow-0">
                         {#if task.Actor || responsiblePlaceholder}
                             <Combo  compact={true} 
@@ -505,15 +524,33 @@
                             </Combo>
                         {/if}
                     </div>
+
+                    <div>
+                        {#if availableStates && availableStates.length > 0}
+                            <Combo  compact={true} 
+                                    inContext='data'
+                                    a='State'
+                                    icon
+                                    placeholder='State'
+                                    s='sm'>
+                                <ComboSource    objects={availableStates}
+                                                key="state" 
+                                                name="name"
+                                                icon="icon"/>
+                            </Combo>
+                        {/if}
+                    </div>
                 
-                    {#if task.Tags || tagsPlaceholder}
-                        <Tags class="ml-auto grow justify-end"
-                            a='Tags'
-                            getGlobalTags={() => allTags}
-                            {onUpdateAllTags}
-                            canChangeColor
-                            bind:this={tags}/>
-                    {/if}
+                    <div>
+                        {#if task.Tags || tagsPlaceholder}
+                            <Tags class=""
+                                a='Tags'
+                                getGlobalTags={() => allTags}
+                                {onUpdateAllTags}
+                                canChangeColor
+                                bind:this={tags}/>
+                        {/if}
+                    </div>
                 </section>
             {/if}
             

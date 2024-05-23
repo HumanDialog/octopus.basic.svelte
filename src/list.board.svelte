@@ -14,7 +14,7 @@
         KanbanComboProperty,
         KanbanTagsProperty,
         KanbanStaticProperty,
-        mainViewReloader,
+        mainContentPageReloader,
 		KanbanSource,
         Modal,
 		KanbanColumnBottom
@@ -35,7 +35,7 @@
     let allTags = ''
     let kanban;
 
-    $: onParamsChanged($location, $mainViewReloader);
+    $: onParamsChanged($location, $mainContentPageReloader);
 
 	async function onParamsChanged(...args) 
     {
@@ -170,12 +170,7 @@
         push(`/tasklist/${listId}`);
     }
 
-    function switchToArchive()
-    {
-        push(`/tasklist/${listId}?archivedTasks`);
-    }
-  
-	async function onAdd(newTaskAttribs) 
+    async function onAdd(newTaskAttribs) 
     {
         let res = await reef.post(`${listPath}/CreateTaskEx`,{ properties: newTaskAttribs })
         if(!res)
@@ -217,20 +212,19 @@
         if(!taskToArchive)
             return;
 
-        await reef.get(`${taskToArchive.$ref}/Archive`)
+        await reef.post(`${taskToArchive.$ref}/Archive`, {})
         archiveModal.hide();
         
         reload(kanban.SELECT_NEXT);
     }
 
-	
-    function onOpen(item)
+    async function finishTask(task)
     {
-        push(`/task/${item.Id}`);
+        await reef.post(`${task.$ref}/Finish`, {});
+        reload(task.Id); 
     }
 
-    
-
+	
     async function onUpdateAllTags(allAllTags)
     {
         allTags = allAllTags
@@ -281,6 +275,13 @@
                         icon: FaEllipsisH,
                         
                         menu:[
+                            ... (task.State == STATE_FINISHED) ? [] : [
+                                    {
+                                        caption: 'Finish',
+                                        icon: FaCheck,
+                                        action: (f) => finishTask(task)
+                                    },
+                            ],
                             {
                                 caption: 'Archive',
                                 icon: FaArchive,

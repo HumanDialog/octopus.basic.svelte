@@ -10,7 +10,7 @@
                 ListInserter,
                 ListDateProperty,
                 ListComboProperty,
-				mainViewReloader,
+				mainContentPageReloader,
                 Modal} from '@humandialog/forms.svelte'
     import {FaPlus, FaCaretUp, FaCaretDown, FaTrash, FaRegCheckCircle, FaRegCircle, FaPen, FaColumns, FaArchive, FaList, FaEllipsisH, FaChevronRight, FaChevronLeft} from 'svelte-icons/fa'
     import {location, pop, push, querystring} from 'svelte-spa-router'
@@ -30,7 +30,7 @@
 
     const STATE_FINISHED = 1000;
     
-    $: onParamsChanged($location, $querystring, $mainViewReloader);
+    $: onParamsChanged($location, $querystring, $mainContentPageReloader);
     
     async function onParamsChanged(...args)
     {
@@ -158,7 +158,7 @@
         if(!taskToArchive)
             return;
 
-        await reef.get(`${taskToArchive.$ref}/Archive`)
+        await reef.post(`${taskToArchive.$ref}/Archive`, {})
         archiveModal.hide();
         
         await reloadTasks(listComponent.SELECT_NEXT)
@@ -169,7 +169,7 @@
         if(event)
             event.stopPropagation();
 
-        let result = await reef.get(`${task.$ref}/Finish`);
+        let result = await reef.post(`${task.$ref}/Finish`, {});
         if(result)
             await reloadTasks(listComponent.KEEP_OR_SELECT_NEXT)   
     }
@@ -214,16 +214,6 @@
         push(`/listboard/${listId}`);
     }
 
-    function switchToArchive()
-    {
-        push(`/tasklist/${listId}?archivedTasks`);
-    }
-
-    function switchToActive()
-    {
-        push(`/tasklist/${listId}`);
-    }
-
     function getEditOperations(task)
     {
         return [
@@ -250,11 +240,7 @@
         ];
     }
 
-    function onOpen(task)
-    {
-        push(`/task/${task.Id}`);
-    }
-
+    
     let taskOperations = (task) => { 
         let editOperations = getEditOperations(task)
         return [

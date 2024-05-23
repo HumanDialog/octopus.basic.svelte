@@ -4,7 +4,7 @@
                 SidebarGroup, 
                 SidebarList, 
                 SidebarItem, 
-                reloadMainView, 
+                reloadMainContentPage, 
                 Modal} from '@humandialog/forms.svelte'
     import {FaList, FaRegCheckCircle, FaCaretUp, FaCaretDown, FaTrash, FaArchive} from 'svelte-icons/fa'
     import {location} from 'svelte-spa-router'
@@ -16,8 +16,6 @@
     let taskLists = [];
     let user = {};
     let navLists;
-
-    let justHaveCompletedLists = false;
 
     $: currentPath = $location;
 
@@ -44,10 +42,7 @@
     {
         let res = await reef.get("/app/Lists?sort=Order&fields=Id,Name,Order,$type");
         if(res != null)
-        {
             taskLists = res.TaskList;
-            justHaveCompletedLists = true;
-        }
         else
             taskLists = [];
     }
@@ -79,21 +74,22 @@
 
     async function finishAllOnList(list)
     {
-        await reef.get(`/app/Lists/${list.Id}/FinishAll`)
+        await reef.post(`/app/Lists/${list.Id}/FinishAll`, {})
         
-        if(isRoutingTo(`#/tasklist/${list.Id}`, currentPath))
+        if( isRoutingTo(`#/listboard/${list.Id}`, currentPath) || 
+            isRoutingTo(`#/tasklist/${list.Id}`, currentPath))
         {
-            reloadMainView();
+            reloadMainContentPage();
         }
     }
 
     async function finishAllMyTasks()
     {       
-        await reef.get(`/user/FinishTasks`)
+        await reef.post(`/user/FinishTasks`, {})
         
         if(isRoutingTo('#/mytasks', currentPath))
         {
-            reloadMainView();
+            reloadMainContentPage();
         }
 
     }
@@ -107,23 +103,26 @@
         linkPath.startsWith('#')
             linkPath = linkPath.substring(1)
 
+        
+
         if(currentPath.startsWith(linkPath))
             return true;
         else
             return false;
     }
+
     
-    function getUserListOperations(dom_node, data_item)
+    function getUserListOperations(domNode, dataItem)
     {
-        let menu_operations = [];
-        if(data_item == user)
-            menu_operations.push({
+        let menuOperations = [];
+        if(dataItem == user)
+            menuOperations.push({
                 caption: 'Finish all',
                 icon: FaRegCheckCircle,
                 action: (f) => finishAllMyTasks()
             });
 
-        return menu_operations;
+        return menuOperations;
     }
 
     
@@ -148,7 +147,7 @@
         if(!listToArchive)
             return;
 
-        await reef.get(`/app/Lists/${listToArchive.Id}/Archive`)
+        await reef.post(`/app/Lists/${listToArchive.Id}/Archive`, {})
         archiveModal.hide();
 
         reload();
@@ -165,27 +164,27 @@
         reload();
     }
 
-    function getTaskListOperations(dom_node, data_item)
+    function getTaskListOperations(domNode, dataItem)
     {
-        let menu_operations = [];
-        menu_operations = [
+        let menuOperations = [];
+        menuOperations = [
             {
                 caption: 'Rename',
-                action: (f) => startEditing(dom_node)
+                action: (f) => startEditing(domNode)
             },
             {
                 caption: 'Finish all',
-                action: (f) => finishAllOnList(data_item)
+                action: (f) => finishAllOnList(dataItem)
             },
             {
                 caption: 'Move up',
                 icon: FaCaretUp,
-                action: (f) => navLists.moveUp(data_item)
+                action: (f) => navLists.moveUp(dataItem)
             },
             {
                 caption: 'Move down',
                 icon: FaCaretDown,
-                action: (f) => navLists.moveDown(data_item)
+                action: (f) => navLists.moveDown(dataItem)
 
             },
             {
@@ -193,14 +192,14 @@
             },
             {
                 caption: 'Archive',
-                action: (f) => askToArchive(data_item)
+                action: (f) => askToArchive(dataItem)
             },
             {
                 caption: 'Delete',
-                action: (f) => askToDelete(data_item)
+                action: (f) => askToDelete(dataItem)
             }
         ]
-        return menu_operations
+        return menuOperations
     }
 
     let archivedLists = []
@@ -251,10 +250,10 @@
                             inserterPlaceholder='New list'
                             bind:this={navLists}>
                 <svelte:fragment let:item>
-                    {@const href = `#/tasklist/${item.Id}`}
+                    {@const href = `#/listboard/${item.Id}`}
                     <SidebarItem   {href}
                                     icon={FaList}
-                                    active={isRoutingTo(href, currentPath)}
+                                    active={isRoutingTo(`#/tasklist/${item.Id}`, currentPath) || isRoutingTo(`#/listboard/${item.Id}`, currentPath)}
                                     operations={(node) => getTaskListOperations(node, item)}
                                     selectable={item}
                                     editable={(text) => {changeName(item, text)}}>
@@ -300,7 +299,7 @@
                             orderAttrib='Order'
                             bind:this={navLists}>
                 <svelte:fragment let:item>
-                    {@const href = `#/tasklist/${item.Id}`}
+                    {@const href = `#/listboard/${item.Id}`}
                     <SidebarItem   {href}
                                     icon={FaList}
                                     operations={(node) => getTaskListOperations(node, item)}

@@ -10,7 +10,7 @@
                 ListInserter,
                 ListDateProperty,
                 ListComboProperty,
-				mainViewReloader,
+				mainContentPageReloader,
                 Modal} from '@humandialog/forms.svelte'
     import {FaPlus, FaCaretUp, FaCaretDown, FaTrash, FaRegCheckCircle, FaRegCircle, FaPen, FaArchive, FaEllipsisH} from 'svelte-icons/fa'
     
@@ -20,9 +20,9 @@
     let listComponent;
 
     let lists = [];
-    const STATUS_CLOSED = 2;
+    const STATE_FINISHED = 1000;
 
-    $: onParamsChanged($session, $mainViewReloader);
+    $: onParamsChanged($session, $mainContentPageReloader);
     
     async function onParamsChanged(...args)
     {
@@ -127,7 +127,7 @@
         if(!taskToArchive)
             return;
 
-        await reef.get(`${taskToArchive.$ref}/Archive`)
+        await reef.post(`${taskToArchive.$ref}/Archive`, {})
         archiveModal.hide();
         
         await reloadTasks(listComponent.SELECT_NEXT)
@@ -137,7 +137,7 @@
     {
         event.stopPropagation();
 
-        let result = await reef.get(`${task.$ref}/Finish`);
+        let result = await reef.post(`${task.$ref}/Finish`, {});
         if(result)
             await reloadTasks(listComponent.KEEP_OR_SELECT_NEXT)   
     }
@@ -261,7 +261,7 @@
             <ListDateProperty name="DueDate"/>
 
             <span slot="left" let:element>
-                <Icon component={element.Status == STATUS_CLOSED ? FaRegCheckCircle : FaRegCircle} 
+                <Icon component={element.State == STATE_FINISHED ? FaRegCheckCircle : FaRegCircle} 
                     on:click={(e) => finishTask(e, element)} 
                     class="h-5 w-5 sm:w-4 sm:h-4 text-stone-500 dark:text-stone-400 cursor-pointer mt-2 sm:mt-1.5 ml-2 "/>
             </span>

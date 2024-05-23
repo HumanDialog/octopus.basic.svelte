@@ -1,5 +1,6 @@
+
 <script>
-    let user_class = $$props.class ?? ""
+    let userClass = $$props.class ?? ""
 </script>
 
-<img src="https://objectreef.dev/reef.svg" alt="" class={user_class}/>
+<img src="https://objectreef.dev/reef.svg" alt="" class={userClass}/>
