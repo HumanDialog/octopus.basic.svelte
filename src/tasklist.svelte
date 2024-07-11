@@ -315,7 +315,7 @@
             <ListSummary a='Summary'/>
             <ListInserter action={addTask} icon/>
 
-            <ListComboProperty  name="Actor" association>
+            <ListComboProperty  name="Actor" association hasNone>
                 <ComboSource objects={users} key="$ref" name='Name'/>
             </ListComboProperty>
 

@@ -3,7 +3,7 @@
     import MyTasks from './mytasks.svelte'
     import TaskList from './tasklist.svelte'
     import Sidebar from './sidebar.svelte'  
-    import {Layout} from '@humandialog/forms.svelte'
+    import {Layout, Console} from '@humandialog/forms.svelte'
     import {reef, session} from '@humandialog/auth.svelte'
     import Members from './members.svelte'
     import {push} from 'svelte-spa-router'
@@ -63,6 +63,10 @@
                             action: (focused) => { push('/members') }
                         }
                     ]
+                },
+                selectionDetails:{
+                    caption: 'Console',
+                    component: Console
                 },
                 dark:
                 {

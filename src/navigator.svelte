@@ -16,6 +16,7 @@
     let taskLists = [];
     let user = {};
     let navLists;
+    let navItems = [];
 
     $: currentPath = $location;
 
@@ -68,6 +69,16 @@
         let res = await reef.post(`/app/Lists/${list.Id}/set`, 
                                 {
                                     Name: name
+                                });
+        return (res != null);
+    }
+
+    async function changeSummary(list, summary)
+    {
+
+        let res = await reef.post(`/app/Lists/${list.Id}/set`, 
+                                {
+                                    Summary: summary
                                 });
         return (res != null);
     }
@@ -164,13 +175,17 @@
         reload();
     }
 
-    function getTaskListOperations(domNode, dataItem)
+    function getTaskListOperations(domNode, dataItem, navItem)
     {
         let menuOperations = [];
         menuOperations = [
             {
                 caption: 'Rename',
                 action: (f) => startEditing(domNode)
+            },
+            {
+                caption: 'Edit summary',
+                action: (f) => navItem.editSummary()
             },
             {
                 caption: 'Finish all',
@@ -238,6 +253,7 @@
                             icon={FaList}
                             active={isRoutingTo("#/mytasks", currentPath)}
                             operations={(node) => getUserListOperations(node, user)}
+                            summary="All active tasks assigned to me."
                             selectable={user}>
                 My Tasks
             </SidebarItem>
@@ -249,13 +265,17 @@
                             inserter={addList} 
                             inserterPlaceholder='New list'
                             bind:this={navLists}>
-                <svelte:fragment let:item>
+                <svelte:fragment let:item let:idx>
                     {@const href = `#/listboard/${item.Id}`}
                     <SidebarItem   {href}
                                     icon={FaList}
+                                    bind:this={navItems[idx]}
                                     active={isRoutingTo(`#/tasklist/${item.Id}`, currentPath) || isRoutingTo(`#/listboard/${item.Id}`, currentPath)}
-                                    operations={(node) => getTaskListOperations(node, item)}
+                                    operations={(node) => getTaskListOperations(node, item, navItems[idx])}
                                     selectable={item}
+                                    summary={{
+                                        editable: (text) => {changeSummary(item, text)},
+                                        content: item.Summary}}
                                     editable={(text) => {changeName(item, text)}}>
                         {item.Name}
                     </SidebarItem>
@@ -270,6 +290,7 @@
                     {@const href = `#/tasklist/${item.Id}?archivedList`}
                     <SidebarItem   {href}
                                     icon={FaList}
+                                    summary={item.Summary}
                                     active={isRoutingTo(href, currentPath)}>
                         {item.Name}
                     </SidebarItem>
@@ -289,6 +310,7 @@
             <SidebarItem    href="#/mytasks"
                             icon={FaList}
                             operations={(node) => getUserListOperations(node, user)}
+                            summary="All active tasks assigned to me."
                             item={user}>
                 My Tasks
             </SidebarItem>
@@ -298,12 +320,16 @@
             <SidebarList    objects={taskLists} 
                             orderAttrib='Order'
                             bind:this={navLists}>
-                <svelte:fragment let:item>
+                <svelte:fragment let:item let:idx>
                     {@const href = `#/listboard/${item.Id}`}
                     <SidebarItem   {href}
                                     icon={FaList}
-                                    operations={(node) => getTaskListOperations(node, item)}
+                                    bind:this={navItems[idx]}
+                                    operations={(node) => getTaskListOperations(node, item, navItems[idx])}
                                     {item}
+                                    summary={{
+                                        editable: (text) => {changeSummary(item, text)},
+                                        content: item.Summary}}
                                     editable={(text) => {changeName(item, text)}}>
                         {item.Name}
                     </SidebarItem>
@@ -318,6 +344,7 @@
                     {@const href = `#/tasklist/${item.Id}?archivedList`}
                     <SidebarItem   {href}
                                     icon={FaList}
+                                    summary={item.Summary}
                                     {item}>
                         {item.Name}
                     </SidebarItem>

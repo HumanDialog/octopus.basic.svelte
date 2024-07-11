@@ -234,91 +234,118 @@
     function getCardOperations(task)
     {
         const columnIdx = taskStates.findIndex(s => s.state == task.State)
+        const isOutOfStates = columnIdx < 0
 
-        return [
-            {
-                icon: FaPlus,
-                action: (f) => { kanban.add(task) }
-            },
-            {
-                toolbox:[
-                    {
-                        icon: FaPen,
-                        grid: [
-                            {
-                                caption: 'Name',
-                                columns: 2,
-                                action: (f) =>  { kanban.edit(task, 'Title') }
-                            },
-                            {
-                                caption: 'Summary',
-                                action: (f) =>  { kanban.edit(task, 'Summary') }
-                            },
-                            {
-                                separator: true
-                            },
-                            {
-                                caption: 'Responsible',
-                                action: (f) => { kanban.edit(task, 'Actor') }
-                            },
-                            {
-                                caption: 'Due Date',
-                                action: (f) => { kanban.edit(task, 'DueDate') }
-                            },
-                            {
-                                caption: 'Tag',
-                                action: (f) => { kanban.edit(task, 'Tags') }
-                            }
-                        ]
-                    },
-                    {
-                        icon: FaEllipsisH,
-                        
-                        menu:[
-                            ... (task.State == STATE_FINISHED) ? [] : [
-                                    {
-                                        caption: 'Finish',
-                                        icon: FaCheck,
-                                        action: (f) => finishTask(task)
-                                    },
-                            ],
-                            {
-                                caption: 'Archive',
-                                icon: FaArchive,
-                                action: (f) => askToArchive(task)
-                            },
-                            {
-                                caption: 'Delete',
-                                icon: FaTrash,
-                                action: (f) => askToDelete(task)
-                            },
-                            {
-                                caption: 'Column',
-                                menu: getColumnContextMenu(columnIdx, taskStates)
-                            }
-                        ]
-                    }
-                ]
-            },
-            
-            {
-                icon: FaArrowsAlt,
-                toolbar: MoveOperations,
-                props: {
-                        taskStates: taskStates,
-                        item: task,
-                        afterActionOperation: kanban.scrollViewToCard,
-                        onMoveUp: kanban.moveUp,
-                        onMoveDown: kanban.moveDown,
-                        onReplace: kanban.replace}
-            },
-            {
-                icon: FaList,
-                right: true,
-                action: (f) => switchToList()
-            }
-            
-        ]
+        const addOperation = {
+            icon: FaPlus,
+            action: (f) => { kanban.add(task) }
+        }
+
+        const moveOperation = {
+            icon: FaArrowsAlt,
+            toolbar: MoveOperations,
+            props: {
+                    taskStates: taskStates,
+                    item: task,
+                    afterActionOperation: kanban.scrollViewToCard,
+                    onMoveUp: isOutOfStates ? undefined : kanban.moveUp,
+                    onMoveDown: isOutOfStates ? undefined : kanban.moveDown,
+                    onReplace: kanban.replace}
+        }
+
+        const switchOperation = {
+            icon: FaList,
+            right: true,
+            action: (f) => switchToList()
+        }
+
+        const editOperation = {
+            icon: FaPen,
+            grid: [
+                {
+                    caption: 'Name',
+                    columns: 2,
+                    action: (f) =>  { kanban.edit(task, 'Title') }
+                },
+                {
+                    caption: 'Summary',
+                    action: (f) =>  { kanban.edit(task, 'Summary') }
+                },
+                {
+                    separator: true
+                },
+                {
+                    caption: 'Responsible',
+                    action: (f) => { kanban.edit(task, 'Actor') }
+                },
+                {
+                    caption: 'Due Date',
+                    action: (f) => { kanban.edit(task, 'DueDate') }
+                },
+                {
+                    caption: 'Tag',
+                    action: (f) => { kanban.edit(task, 'Tags') }
+                }
+            ]
+        }
+
+        const moreOperation = {
+            icon: FaEllipsisH,
+            menu:[
+                ... (task.State == STATE_FINISHED) ? [] : [
+                        {
+                            caption: 'Finish',
+                            icon: FaCheck,
+                            action: (f) => finishTask(task)
+                        },
+                ],
+                {
+                    caption: 'Archive',
+                    icon: FaArchive,
+                    action: (f) => askToArchive(task)
+                },
+                {
+                    caption: 'Delete',
+                    icon: FaTrash,
+                    action: (f) => askToDelete(task)
+                },
+                ... (isOutOfStates) ? [] : [
+                {
+                    caption: 'Column',
+                    menu: getColumnContextMenu(columnIdx, taskStates)
+                }]
+            ]
+        }
+
+        if(isOutOfStates)
+        {
+            return [
+                moveOperation,
+                {
+                    toolbox:[
+                        editOperation,
+                        moreOperation
+                    ]
+                },
+                switchOperation
+            ]
+        }
+        else
+        {
+            return [
+                addOperation,
+                {
+                    toolbox:[
+                        editOperation,
+                        moreOperation
+                    ]
+                },
+                moveOperation,
+                switchOperation
+            ]
+        }
+        
+        
     }
 
     function getColumnContextMenu(columnIdx, taskState, inColumnContext=true)
@@ -361,8 +388,6 @@
 
     function getColumnOperations(columnIdx, taskState)
     {
-
-
         return [
             {
                 icon: FaPlus,
@@ -549,9 +574,15 @@
                                 finishing={taskState.state == STATE_FINISHED}/>
             {/each}
 
+            <KanbanColumn   title="<Other>"
+                            state={-1} />
+
+
 			<KanbanCallbacks {onAdd} {getCardOperations}/>
 
-			<KanbanTitle a="Title" hrefFunc={(task) => `/task/${task.Id}`}/>
+			<KanbanTitle    a="Title" 
+                            hrefFunc={(task) => `/task/${task.Id}`}
+                            hasAttachment={(task) => task.Description || (task.Steps && task.Steps.length > 0) }/>
 			<KanbanSummary a="Summary" />
 
             <KanbanStaticProperty top a='Index'/>
