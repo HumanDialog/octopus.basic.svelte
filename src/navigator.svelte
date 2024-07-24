@@ -192,6 +192,10 @@
                 action: (f) => finishAllOnList(dataItem)
             },
             {
+                caption: 'Move on top',
+                action: (f) => navLists.moveTop(dataItem)
+            },
+            {
                 caption: 'Move up',
                 icon: FaCaretUp,
                 action: (f) => navLists.moveUp(dataItem)
