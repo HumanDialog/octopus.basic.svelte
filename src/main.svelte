@@ -1,60 +1,38 @@
 <script>
-	import {    isDeviceSmallerThan, 
-                Spinner, 
-                Page
-    } from '@humandialog/forms.svelte'
-    import {push } from "svelte-spa-router";
-    import Navigator from "./navigator.svelte";
-    import {FaPlus} from 'svelte-icons/fa/'
-
-    export let defaultPath = '/mytasks'
-
-    const UNKNOWN = 0;
-    const REDIRECT = 1;
-    const NAVIGATOR = 2;
-
-    let whatToShow = UNKNOWN;
-
-    $: {
-            if(isDeviceSmallerThan("sm"))
-            {
-                whatToShow = NAVIGATOR;
-            }
-            else 
-            {
-                whatToShow = REDIRECT;
-                push(defaultPath);
-            }
-    }
-
-    let navigator;
-    function getPageOperations()
+	import {session, Authorized, NotAuthorized} from '@humandialog/auth.svelte'
+    import {Spinner} from '@humandialog/forms.svelte'
+    import AppView from './AppView.svelte';
+    
+    $: update($session)
+    function update(...args)
     {
-        return [
-            {
-                icon: FaPlus,
-                action: (f) => navigator?.requestAddList()
-            }
-        ]
+        
     }
 
-    const currentNav = {}
+    let landingComponent = null
+    switch(__LANDING__)
+    {
+    default:
+        import('./landing/landing.svelte').then((module) => { 
+                                                            landingComponent = module.default || module; 
+                                                        })
+        break;
+    }
+
+    
 
 </script>
 
+<Authorized>
+    <AppView/>
+</Authorized>
 
-{#if whatToShow == NAVIGATOR}
-    <Page   toolbarOperations={ getPageOperations() }
-            clearsContext='props sel'
-            self={currentNav} 
-            title="Octopus Basic">
-                
-        <Navigator  sidebar={false}
-                    bind:this={navigator}/>
-    </Page>
+<NotAuthorized>
+    {#if landingComponent}
+        <svelte:component this={landingComponent} />
+    {:else}
+        <Spinner/> 
+    {/if}
+</NotAuthorized>
 
-
-{:else}
-    <Spinner delay={3000}/>
-{/if}
 

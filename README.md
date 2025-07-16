@@ -11,10 +11,10 @@ Sample screens:
 <img src="doc/task.png" width="640" alt="task"/>
 
 
-**NOTE:** This is only frontend part of the application. Backend source code you can find at [https://github.com/HumanDialog/octopus.mini.reef](https://github.com/HumanDialog/octopus.mini.reef)
+**NOTE:** This is only frontend part of the application. Backend source code you can find at [https://github.com/HumanDialog/octopus.basic.reef](https://github.com/HumanDialog/octopus.basic.reef)
 
 ## Prerequisites
-The website requires backend service launched on your local machine. To launch backend service see https://github.com/HumanDialog/octopus.mini.reef/README.md first.
+The website requires backend service launched on your local machine. To launch backend service see https://github.com/HumanDialog/octopus.basic.reef/README.md first.
 
 This sample based on [Svelte](https://svelte.dev/) therefore requires [node.js](https://nodejs.org/en) installed on your local machine.
 
@@ -24,7 +24,7 @@ In the repository root directory run
 and then  
 `npm run dev`
 
-Note that this project is only an SPA application and still needs the API service running for proper operation. You can find a repository of the backend service at https://github.com/HumanDialog/octopus.mini.reef. In the description of this project you will find more details, including how to run, compile and fill-in with sample data.
+Note that this project is only an SPA application and still needs the API service running for proper operation. You can find a repository of the backend service at https://github.com/HumanDialog/octopus.basic.reef. In the description of this project you will find more details, including how to run, compile and fill-in with sample data.
 
 Make sure that the address of the local API service is correct. You can find the setting in the `App.svelte` file:
 ```js

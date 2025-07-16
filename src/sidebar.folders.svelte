@@ -1,6 +1,10 @@
 <script>
-    import {Sidebar, SidebarBrand} from '@humandialog/forms.svelte'
-	import Navigator from "./navigator.svelte";
+       import {Sidebar, 
+                SidebarBrand,
+                SidebarGroup, 
+                SidebarList, 
+                SidebarItem} from '@humandialog/forms.svelte'
+    import GroupFoldersNavigator from "./navigator.group.folders.svelte";
     import {session} from '@humandialog/auth.svelte'
 
     /*let current_group_name = ""
@@ -14,7 +18,6 @@
             current_group_name = tInfo.name;
     }
     */
-
     
 </script>
   
@@ -31,7 +34,8 @@
     </SidebarBrand>
     
         
-    <Navigator sidebar/>
+    <GroupFoldersNavigator sidebar/>
+    
 
 </Sidebar>
 

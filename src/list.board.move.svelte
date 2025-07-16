@@ -115,7 +115,7 @@
     {#each taskStates as taskState, idx}
         <section class="flex flex-row">
             <p class="text-base mt-4 truncate w-[120px]  text-stone-900 dark:text-stone-400">{taskState.name}</p>
-            <div class="flex flex-row ml-auto gap-3">
+            <div class="flex flex-row ml-auto mr-10 gap-3">
                 <button class=" bg-transparent
                                 w-[55px] h-[55px] 
                                 m-0

@@ -1,21 +1,8 @@
 <script>
     import {Sidebar, SidebarBrand} from '@humandialog/forms.svelte'
-	import Navigator from "./navigator.svelte";
+	import MessagesNavigator from "./navigator.messages.svelte";
     import {session} from '@humandialog/auth.svelte'
-
-    /*let current_group_name = ""
-    $: validate_group_name($session)
-
-    function validate_group_name(...args)
-    {
-        const gid = $session.tid;       // current tenant id
-        const tInfo = $session.tenants.find(t => t.id == gid)
-        if(tInfo)
-            current_group_name = tInfo.name;
-    }
-    */
-
-    
+  
 </script>
   
 <Sidebar>
@@ -30,8 +17,7 @@
         
     </SidebarBrand>
     
-        
-    <Navigator sidebar/>
+    <MessagesNavigator sidebar/>
 
 </Sidebar>
 

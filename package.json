@@ -1,7 +1,7 @@
 {
   "name": "octopus.basic.svelte",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.7",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -11,6 +11,7 @@
     "check": "svelte-check --tsconfig ./tsconfig.json"
   },
   "devDependencies": {
+    "@beyonk/svelte-google-analytics": "^2.6.4",
     "@sveltejs/vite-plugin-svelte": "^2.4.6",
     "@tailwindcss/typography": "^0.5.8",
     "@tsconfig/svelte": "^5.0.2",
@@ -27,8 +28,8 @@
   },
   "dependencies": {
     "@floating-ui/dom": "^1.0.7",
-    "@humandialog/auth.svelte": "^1.5.4",
-    "@humandialog/forms.svelte": "^0.5.24",
+    "@humandialog/auth.svelte": "^1.8.14",
+    "@humandialog/forms.svelte": "^1.4.9",
     "@popperjs/core": "^2.11.6",
     "classnames": "^2.3.2",
     "help": "^3.0.2",

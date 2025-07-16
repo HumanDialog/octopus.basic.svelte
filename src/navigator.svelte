@@ -5,11 +5,16 @@
                 SidebarList, 
                 SidebarItem, 
                 reloadMainContentPage, 
-                Modal} from '@humandialog/forms.svelte'
-    import {FaList, FaRegCheckCircle, FaCaretUp, FaCaretDown, FaTrash, FaArchive} from 'svelte-icons/fa'
-    import {location} from 'svelte-spa-router'
+                Modal,
+                reloadWholeApp,
+                Input, 
+                onErrorShowAlert,
+                randomString, UI} from '@humandialog/forms.svelte'
+    import {FaList, FaRegCheckCircle, FaCaretUp, FaCaretDown, FaTrash, FaArchive, FaUsers, FaPlus} from 'svelte-icons/fa'
+    import {location, push} from 'svelte-spa-router'
     import {reef, session} from '@humandialog/auth.svelte'
-	import { onMount } from 'svelte';
+	import { afterUpdate, onMount, tick } from 'svelte';
+    import {cache} from './cache.js'
 
     export let sidebar = true;
 
@@ -17,31 +22,57 @@
     let user = {};
     let navLists;
     let navItems = [];
-
+    
     $: currentPath = $location;
 
-    onMount( async () =>
+    const navRefresher = {
+        refresh: () => {
+                initNavigator();
+            }
+    }
+
+    onMount( () =>
     {
-        await initNavigator();
-        return () => {}        
+        initNavigator();
+        UI.navigator = navRefresher
+        
+        return () => {
+            if(UI.navigator == navRefresher)
+                UI.navigator = null
+        }      
     })
 
+    
     async function initNavigator()
     {
-        if(!$session.isActive)
-            return;
         
-        let res = await reef.get("/user");
-        if(res != null)
-            user = res.User;
+        if($session.isActive)
+        {
+            reef.get("/user", onErrorShowAlert).then((res) => {
+                if(res != null)
+                    user = res.User;
+            })
+           
+        }
 
+        initGroupSelector();
+
+        const cacheKey = `listsNavigator`
+        const cachedValue = cache.get(cacheKey)
+        if(cachedValue)
+        {
+            taskLists = cachedValue;
+            navLists?.reload(taskLists)
+        }
 
         await fetchData()
+        navLists?.reload(taskLists)
+        cache.set(cacheKey, taskLists);
     }
 
     async function fetchData()
     {
-        let res = await reef.get("/app/Lists?sort=Order&fields=Id,Name,Order,$type");
+        let res = await reef.get("/group/Lists?sort=Order&fields=Id,Name,Summary,Order,href,$type", onErrorShowAlert);
         if(res != null)
             taskLists = res.TaskList;
         else
@@ -56,39 +87,43 @@
 
     async function addList(listName, order)
     {
-        await reef.post("/app/Lists/new", 
-                            { 
-                                Name: listName,
-                                Order: order
-                            });
+        await reef.post('/group/CreateList', 
+                        { 
+                            Name: listName,
+                            Order: order
+                        },
+                        onErrorShowAlert);
         reload();
     }
 
     async function changeName(list, name)
     {
-        let res = await reef.post(`/app/Lists/${list.Id}/set`, 
+        let res = await reef.post(`/group/Lists/${list.Id}/set`, 
                                 {
                                     Name: name
-                                });
+                                },
+                                onErrorShowAlert);
         return (res != null);
     }
 
-    async function changeSummary(list, summary)
+    async function changeSummary(list, summary, navItem)
     {
-
-        let res = await reef.post(`/app/Lists/${list.Id}/set`, 
+        list.Summary = summary
+        navItem.updateSummary(summary)
+        let res = await reef.post(`/group/Lists/${list.Id}/set`, 
                                 {
                                     Summary: summary
-                                });
+                                },
+                                onErrorShowAlert);
         return (res != null);
     }
 
     async function finishAllOnList(list)
     {
-        await reef.post(`/app/Lists/${list.Id}/FinishAll`, {})
+        await reef.post(`/group/Lists/${list.Id}/FinishAll`, {}, onErrorShowAlert)
         
-        if( isRoutingTo(`#/listboard/${list.Id}`, currentPath) || 
-            isRoutingTo(`#/tasklist/${list.Id}`, currentPath))
+        if( isRoutingTo(`/listboard/${list.Id}`, currentPath) || 
+            isRoutingTo(`/tasklist/${list.Id}`, currentPath))
         {
             reloadMainContentPage();
         }
@@ -96,9 +131,9 @@
 
     async function finishAllMyTasks()
     {       
-        await reef.post(`/user/FinishTasks`, {})
+        await reef.post(`/user/FinishTasks`, {}, onErrorShowAlert)
         
-        if(isRoutingTo('#/mytasks', currentPath))
+        if(isRoutingTo('/mytasks', currentPath))
         {
             reloadMainContentPage();
         }
@@ -111,7 +146,7 @@
             return false;
 
         let linkPath = href;
-        linkPath.startsWith('#')
+        if(linkPath.startsWith('#'))
             linkPath = linkPath.substring(1)
 
         
@@ -158,7 +193,7 @@
         if(!listToArchive)
             return;
 
-        await reef.post(`/app/Lists/${listToArchive.Id}/Archive`, {})
+        await reef.post(`/group/Lists/${listToArchive.Id}/Archive`, {}, onErrorShowAlert)
         archiveModal.hide();
 
         reload();
@@ -169,7 +204,7 @@
         if(!listToDelete)
             return;
 
-        await reef.delete(`/app/Lists/${listToDelete.Id}`)
+        await reef.delete(`/group/Lists/${listToDelete.Id}`, onErrorShowAlert)
         deleteModal.hide();
 
         reload();
@@ -225,7 +260,7 @@
     let navArchivedLists;
     async function onExpandArchived()
     {
-        let res = await reef.get("/app/ArchivedLists?sort=-Id&fields=Id,Name,$type");
+        let res = await reef.get("/group/AllLists?sort=-Id&fields=Id,Name,$type&Status=TLS_GROUP_ARCHVIVED_LIST", onErrorShowAlert);
         if(res != null)
         {
             archivedLists = res.TaskList;
@@ -236,49 +271,180 @@
             archivedLists = [];
     }
 
-    export function requestAddList()
+    export function requestAdd()
     {
         navLists.add(async (listName, order) => {
-            await reef.post("/app/Lists/new", 
-                            { 
-                                Name: listName,
-                                Order: order
-                            });
-            reload();
+            await addList(listName, order)
         })
+    }
+
+    let showGroupsSwitchMenu = false;
+    let canAddNewGroup = false;
+    let currentGroup = {}
+
+    function initGroupSelector()
+    {
+        showGroupsSwitchMenu = $session.tenants.length > 1
+        if($session.configuration.tenant)
+        {
+            reef.getAppInstanceInfo().then( (instanceInfo =>{
+                if(instanceInfo?.is_public)
+                {
+                    showGroupsSwitchMenu = true;
+                    canAddNewGroup = true;
+                }
+            }))
+        }
+        
+        currentGroup = $session.tenants.find(t => t.id == $session.tid)
+        
+    }
+
+    function getGroupsMenu()
+    {
+        if(!showGroupsSwitchMenu)
+            return []
+        
+        let options = []
+        $session.tenants.forEach(tInfo =>
+            options.push({
+                caption: tInfo.name,
+                icon: FaUsers,
+                disabled: tInfo.id == $session.tid,
+                action: async (f) => {
+                    $session.setCurrentTenantAPI(tInfo.url, tInfo.id)
+                    push('/')
+                    
+                    await tick()
+                    reloadWholeApp();
+                }
+            })
+        )
+
+        if(canAddNewGroup)
+        {
+            options.push({
+                separator: true
+            })
+            options.push({
+                caption: 'Add group',
+                icon: FaPlus,
+                action: (f) => launchNewGroupWizzard()
+            })
+        }
+        
+        return options;
+    }
+
+    let newGroupParams = {
+        name: ''
+    }
+
+    let newGroupModalVisible = false;
+    let newGroupIdempotencyToken = ''
+    function launchNewGroupWizzard()
+    {
+        newGroupParams.name = '';
+        newGroupModalVisible = true;
+        newGroupIdempotencyToken = randomString(8);
+    }
+
+    async function onNewGroupOK()
+    {
+        const appId = $session.appId
+        if(!appId)
+        {
+            return onNewGroupCancel()
+        }
+        
+        const appInstanceId = $session.configuration.tenant
+        if(!appInstanceId)
+        {
+            return onNewGroupCancel()
+        }
+
+            const body = {
+                app_id: $session.appId,
+                tenant: $session.configuration.tenant,
+                org_name: newGroupParams.name,
+                idempotency_token: newGroupIdempotencyToken
+            }
+
+            const res = await reef.fetch(  "/dev/create-group-for-me",
+                                {
+                                    method: 'post',
+                                    body : JSON.stringify(body)
+                                });
+
+            if(res.ok)
+            {
+                await reef.refreshTokens()
+                //reloadWholeApp()
+            }
+            else
+            {
+                const result = await res.json();  
+                console.error(result.error);
+                onErrorShowAlert(result.error)
+            }
+
+        newGroupParams.name = '';
+        newGroupModalVisible = false;
+    }
+
+    function onNewGroupCancel()
+    {
+        newGroupParams.name = '';
+        newGroupModalVisible = false;
     }
 
 </script>
 
+{#key currentPath}
 {#if sidebar}
     {#if taskLists && taskLists.length > 0}
-        <SidebarGroup>
-            <SidebarItem   href="#/mytasks"
-                            icon={FaList}
-                            active={isRoutingTo("#/mytasks", currentPath)}
-                            operations={(node) => getUserListOperations(node, user)}
-                            summary="All active tasks assigned to me."
-                            selectable={user}>
-                My Tasks
-            </SidebarItem>
-        </SidebarGroup>
+        {#if showGroupsSwitchMenu}
+            <SidebarGroup>
+                <SidebarItem    href=""    
+                                icon={FaUsers}
+                                operations={(n) => getGroupsMenu()}
+                                selectable={currentGroup}>
+                    {currentGroup?.name}
+                </SidebarItem>
+            </SidebarGroup>
+        {/if}
+        
+        {#if $session.isActive}
+            {@const border=showGroupsSwitchMenu}
+            <SidebarGroup border>
+                <SidebarItem   href="/mytasks"
+                                icon={FaList}
+                                active={isRoutingTo("/mytasks", currentPath)}
+                                operations={(node) => getUserListOperations(node, user)}
+                                summary="All active tasks assigned to me."
+                                selectable={user}>
+                    My Tasks
+                </SidebarItem>
+            </SidebarGroup>
+        {/if}
 
         <SidebarGroup border>
+           
             <SidebarList    objects={taskLists} 
                             orderAttrib='Order'
                             inserter={addList} 
                             inserterPlaceholder='New list'
                             bind:this={navLists}>
                 <svelte:fragment let:item let:idx>
-                    {@const href = `#/listboard/${item.Id}`}
+                    {@const href = item.href}
                     <SidebarItem   {href}
                                     icon={FaList}
                                     bind:this={navItems[idx]}
-                                    active={isRoutingTo(`#/tasklist/${item.Id}`, currentPath) || isRoutingTo(`#/listboard/${item.Id}`, currentPath)}
+                                    active={isRoutingTo(href, currentPath)}
                                     operations={(node) => getTaskListOperations(node, item, navItems[idx])}
                                     selectable={item}
                                     summary={{
-                                        editable: (text) => {changeSummary(item, text)},
+                                        editable: (text) => {changeSummary(item, text, navItems[idx])},
                                         content: item.Summary}}
                                     editable={(text) => {changeName(item, text)}}>
                         {item.Name}
@@ -291,7 +457,7 @@
             <SidebarList    objects={archivedLists}
                             bind:this={navArchivedLists}>
                 <svelte:fragment let:item>
-                    {@const href = `#/tasklist/${item.Id}?archivedList`}
+                    {@const href = `/tasklist/${item.Id}?archivedList`}
                     <SidebarItem   {href}
                                     icon={FaList}
                                     summary={item.Summary}
@@ -303,36 +469,51 @@
             
         </SidebarGroup>
 
-        {:else}
-            <Spinner delay={3000}/>
-        {/if}
+    {:else}
+        <Spinner delay={3000}/>
+    {/if}
 
 {:else} <!-- !sidebar -->
 
     {#if taskLists && taskLists.length > 0}
+
+    {#if showGroupsSwitchMenu}
         <SidebarGroup>
-            <SidebarItem    href="#/mytasks"
-                            icon={FaList}
-                            operations={(node) => getUserListOperations(node, user)}
-                            summary="All active tasks assigned to me."
-                            item={user}>
-                My Tasks
+            <SidebarItem    href=""    
+                            icon={FaUsers}
+                            operations={(n) => getGroupsMenu()}
+                            item={currentGroup}>
+                {currentGroup?.name}
             </SidebarItem>
         </SidebarGroup>
-
+    {/if}
+        
+        {#if $session.isActive}
+            {@const border=showGroupsSwitchMenu}
+            <SidebarGroup border>
+                <SidebarItem    href="/mytasks"
+                                icon={FaList}
+                                operations={(node) => getUserListOperations(node, user)}
+                                summary="All active tasks assigned to me."
+                                item={user}>
+                    My Tasks
+                </SidebarItem>
+            </SidebarGroup>
+        {/if}
+        
         <SidebarGroup border>
             <SidebarList    objects={taskLists} 
                             orderAttrib='Order'
                             bind:this={navLists}>
                 <svelte:fragment let:item let:idx>
-                    {@const href = `#/listboard/${item.Id}`}
+                    {@const href = item.href}
                     <SidebarItem   {href}
                                     icon={FaList}
                                     bind:this={navItems[idx]}
                                     operations={(node) => getTaskListOperations(node, item, navItems[idx])}
                                     {item}
                                     summary={{
-                                        editable: (text) => {changeSummary(item, text)},
+                                        editable: (text) => {changeSummary(item, text, navItems[idx])},
                                         content: item.Summary}}
                                     editable={(text) => {changeName(item, text)}}>
                         {item.Name}
@@ -345,7 +526,7 @@
             <SidebarList    objects={archivedLists}
                             bind:this={navArchivedLists}>
                 <svelte:fragment let:item>
-                    {@const href = `#/tasklist/${item.Id}?archivedList`}
+                    {@const href = `/tasklist/${item.Id}?archivedList`}
                     <SidebarItem   {href}
                                     icon={FaList}
                                     summary={item.Summary}
@@ -361,6 +542,7 @@
         <Spinner delay={3000}/>
     {/if}
 {/if}
+{/key}
 
 <Modal  title="Delete"
         content="Are you sure you want to delete selected list?"
@@ -375,3 +557,17 @@
         onOkCallback={archiveList}
         bind:this={archiveModal}
         />
+
+<Modal  bind:open={newGroupModalVisible}
+        title='Create group'
+        okCaption='Create'
+        onOkCallback={onNewGroupOK}
+        onCancelCallback={onNewGroupCancel}
+        icon={FaUsers}
+>
+    <Input  label='Group name' 
+            placeholder='' 
+            self={newGroupParams} 
+            a="name"
+            required/>
+</Modal>

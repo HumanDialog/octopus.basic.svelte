@@ -110,10 +110,10 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-noninteractive-tabindex-->
 
-<ul class="mt-1 mb-6">
+<ul >
     {#each steps as step, idx (step[a])}
         {@const finished = isFinished(step) ? "line-through" : ""}
-        <li class="mt-0 mb-0 {finished} editable focus:outline-none neglect-brs"
+        <li class="{finished} editable focus:outline-none neglect-brs"
             use:editable={{
                 action: (text) => onChange(text, idx),
                 remove: () => onRemove(idx),

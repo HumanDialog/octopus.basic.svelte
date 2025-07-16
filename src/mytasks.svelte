@@ -1,8 +1,9 @@
 <script>
     import {reef, session} from '@humandialog/auth.svelte'
-    import {    Spinner, 
-                Page, 
-                Icon, 
+    import {    Spinner,
+                Page,
+                Icon,
+
                 ComboSource,
                 List,
                 ListTitle,
@@ -11,19 +12,20 @@
                 ListDateProperty,
                 ListComboProperty,
 				mainContentPageReloader,
-                Modal} from '@humandialog/forms.svelte'
+                Modal,
+                onErrorShowAlert} from '@humandialog/forms.svelte'
     import {FaPlus, FaCaretUp, FaCaretDown, FaTrash, FaRegCheckCircle, FaRegCircle, FaPen, FaArchive, FaEllipsisH} from 'svelte-icons/fa'
-    
+
     export let params = {}
 
     let user = null;
     let listComponent;
 
     let lists = [];
-    const STATE_FINISHED = 1000;
+    const STATE_FINISHED = 7000;
 
     $: onParamsChanged($session, $mainContentPageReloader);
-    
+
     async function onParamsChanged(...args)
     {
         if(!$session.isActive)
@@ -34,12 +36,11 @@
 
         if(lists.length == 0)
         {
-            let res = await reef.get('/app/Lists')
+            let res = await reef.get('/group/Lists', onErrorShowAlert)
             if(res)
                 lists = res.TaskList;
         }
-        
-        
+
         await fetchData()
     }
 
@@ -78,8 +79,9 @@
                                                 }
                                             ]
                                         }
-                                    ]   
-                                });
+                                    ]
+                                },
+                                onErrorShowAlert);
         if(res)
             user = res.User;
         else
@@ -91,7 +93,7 @@
         await fetchData();
         listComponent.reload(user, selectRecommendation);
     }
-    
+
 
     let deleteModal;
     let taskToDelete;
@@ -101,16 +103,17 @@
         deleteModal.show()
     }
 
-    
+
     async function deleteTask()
     {
         if(!taskToDelete)
             return;
 
-        await reef.delete(taskToDelete.$ref);
+        //await reef.delete(taskToDelete.$ref, onErrorShowAlert);
+        await reef.post(`${taskToDelete.$ref}/DeletePermanently`, { } , onErrorShowAlert);
         deleteModal.hide();
 
-        
+
         await reloadTasks(listComponent.SELECT_NEXT)
     }
 
@@ -127,9 +130,9 @@
         if(!taskToArchive)
             return;
 
-        await reef.post(`${taskToArchive.$ref}/Archive`, {})
+        await reef.post(`${taskToArchive.$ref}/Archive`, {}, onErrorShowAlert)
         archiveModal.hide();
-        
+
         await reloadTasks(listComponent.SELECT_NEXT)
     }
 
@@ -137,14 +140,14 @@
     {
         event.stopPropagation();
 
-        let result = await reef.post(`${task.$ref}/Finish`, {});
+        let result = await reef.post(`${task.$ref}/Finish`, {}, onErrorShowAlert);
         if(result)
-            await reloadTasks(listComponent.KEEP_OR_SELECT_NEXT)   
+            await reloadTasks(listComponent.KEEP_OR_SELECT_NEXT)
     }
 
     async function addTask(newTaskAttribs)
     {
-        let res = await reef.post(`/user/MyTasks/new`, newTaskAttribs)
+        let res = await reef.post(`/user/MyTasks/new`, newTaskAttribs, onErrorShowAlert)
         if(!res)
             return null;
 
@@ -152,102 +155,132 @@
         await reloadTasks(newTask.Id)
     }
 
-    let pageOperations = [
-        {
-            icon: FaPlus,
-            caption: '',
-            action: (focused) => { listComponent.addRowAfter(null) }
-        }
-    ]
 
-    function getEditOperations(task)
-    {
-        return [
-            {
-                caption: 'Name',
-                action: (focused) =>  { listComponent.edit(task, 'Title') }
-            },
-            {
-                caption: 'Summary',
-                action: (focused) =>  { listComponent.edit(task, 'Summary') }
-            },
-            {
-                separator: true
-            },
-            {
-                caption: 'List',
-                action: (focused) => { listComponent.edit(task, 'TaskList') }
-            },
-            {
-                caption: 'Due Date',
-                action: (focused) => { listComponent.edit(task, 'DueDate') }
-            }
-
-        ];
-    }
-
-    let taskOperations = (task) => { 
-        let editOperations = getEditOperations(task)
-        return [
+    let pageOperations = {
+            opver: 2,
+            fab: 'M00',
+            tbr: 'C',
+            operations: [
                 {
-                    icon: FaPlus,
-                    caption: '',
-                    action: (focused) => { listComponent.addRowAfter(task) }
-                },
-                {
-                    toolbox:[
+                    caption: 'View',
+                    operations: [
                         {
+                            icon: FaPlus,
+                            caption: 'Add',
+                            hideToolbarCaption: true,
+                            action: (focused) => { listComponent.addRowAfter(null) },
+                            //fab: 'M10',
+                            tbr: 'A'
+                        }
+                    ]
+                }
+            ]
+        }
+
+    let taskOperations = (task) => {
+        return {
+            opver: 2,
+            fab: 'M00',
+            tbr: 'C',
+            operations: [
+                {
+                    caption: 'Task',
+                    //tbr: 'B',
+                    operations: [
+                        {
+                            caption: 'Edit...',
+                            hideToolbarCaption: true,
                             icon: FaPen,
-                            grid: editOperations
+                            fab: 'M20',
+                            tbr: 'A',
+                            grid: [
+                                    {
+                                        caption: 'Name',
+                                        action: (focused) =>  { listComponent.edit(task, 'Title') }
+                                    },
+                                    {
+                                        caption: 'Summary',
+                                        action: (focused) =>  { listComponent.edit(task, 'Summary') }
+                                    },
+                                    {
+                                        separator: true
+                                    },
+                                    {
+                                        caption: 'List',
+                                        action: (focused) => { listComponent.edit(task, 'TaskList') }
+                                    },
+                                    {
+                                        caption: 'Due Date',
+                                        action: (focused) => { listComponent.edit(task, 'DueDate') }
+                                    }
+                            ]
+
                         },
                         {
-                            icon: FaEllipsisH,
-                            menu:[
-                            /* {
-                                    icon: FaArchive,
-                                    caption: 'Archive',
-                                    action: (f) => askToArchive(task)
-                                },*/
-                                {
-                                    icon: FaTrash,
-                                    caption: 'Delete',
-                                    action: (f) => askToDelete(task)
-                                }
-                            ]
+                            caption: 'Move up',
+                            hideToolbarCaption: true,
+                            icon: FaCaretUp,
+                            action: (f) => listComponent.moveUp(task),
+                            fab: 'M03',
+                            tbr: 'A'
+                        },
+                        {
+                            caption: 'Move down',
+                            hideToolbarCaption: true,
+                            icon: FaCaretDown,
+                            action: (f) => listComponent.moveDown(task),
+                            fab: 'M02',
+                            tbr: 'A'
+                        },
+
+                        /* {
+                            icon: FaArchive,
+                            caption: 'Archive',
+                            action: (f) => askToArchive(task)
+                        },*/
+                        {
+                            icon: FaTrash,
+                            caption: 'Delete',
+                            action: (f) => askToDelete(task),
+                            fab: 'S10',
                         }
-                        
+
                     ]
                 },
                 {
-                    icon: FaCaretDown,
-                    action: (f) => listComponent.moveDown(task)
-                },
-                {
-                    icon: FaCaretUp,
-                    action: (f) => listComponent.moveUp(task)
+                    caption: 'View',
+                    operations: [
+                        {
+                            caption: 'Add',
+                            hideToolbarCaption: true,
+                            icon: FaPlus,
+                            action: (focused) => { listComponent.addRowAfter(task) },
+                            fab: 'M01',
+                            tbr: 'A'
+                        }
+                    ]
                 }
-            ];
-    }
-
-    let taskContextMenu = (task) => {
-        let editOperations = getEditOperations(task);
-        return {
-            grid: editOperations
+            ]
         }
     }
 
+
+
 </script>
 
+<svelte:head>
+    <title>My Tasks | {__APP_TITLE__}</title>
+</svelte:head>
 
 {#if user}
-    <Page   self={user} 
+    <Page   self={user}
             toolbarOperations={pageOperations}
-            clearsContext='props sel'>
-
-        <List   self={user} 
-                a='MyTasks' 
-                toolbarOperations={taskOperations} 
-                contextMenu={taskContextMenu}
+            clearsContext='props sel'
+            title='My tasks'>
+            <section class="w-full place-self-center max-w-3xl">
+        <List   self={user}
+                a='MyTasks'
+                toolbarOperations={taskOperations}
                 orderAttrib='UserOrder'
                 bind:this={listComponent}>
             <ListTitle a='Title' hrefFunc={(task) => `/task/${task.Id}`}/>
@@ -261,13 +294,14 @@
             <ListDateProperty name="DueDate"/>
 
             <span slot="left" let:element>
-                <Icon component={element.State == STATE_FINISHED ? FaRegCheckCircle : FaRegCircle} 
-                    on:click={(e) => finishTask(e, element)} 
-                    class="h-5 w-5 sm:w-4 sm:h-4 text-stone-500 dark:text-stone-400 cursor-pointer mt-2 sm:mt-1.5 ml-2 "/>
+                <Icon component={element.State == STATE_FINISHED ? FaRegCheckCircle : FaRegCircle}
+                    on:click={(e) => finishTask(e, element)}
+                    class="h-5 w-5  text-stone-500 dark:text-stone-400 cursor-pointer mt-0.5 ml-2 mr-1 "/>
             </span>
 
-            
+
         </List>
+        <section class="w-full flex justify-center">
     </Page>
 {:else}
     <Spinner delay={3000}/>
