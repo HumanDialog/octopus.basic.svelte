@@ -790,10 +790,12 @@
                         newName: name
                     }, onErrorShowAlert);
 
+        
         if(res && Array.isArray(res))
         {
             taskStates = [...res]
-      //    await kanban.rerender();
+            await kanban.rerender();
+            kanban.activateColumn(columnIdx)
         }
 
         //taskStates[columnIdx].name = name;
