@@ -19,7 +19,9 @@
 				ListStaticProperty,
                 getNiceStringDateTime,
                 getNiceStringDate,
-                Paginator
+                Paginator, i18n, ext,
+                Breadcrumb,
+				breadcrumbAdd
             } from '@humandialog/forms.svelte'
     import {FaSync, FaComments, FaComment} from 'svelte-icons/fa'
     import {location, pop, push, querystring} from 'svelte-spa-router'
@@ -40,6 +42,9 @@
     let pageNo = 0
     let allPagesNo = 1
     let pageElementsNo = 25
+
+    let prevBreadcrumbPath = ''
+    let breadcrumbPath = ''
     
     $: onParamsChanged($location, $querystring, $mainContentPageReloader);
     
@@ -65,13 +70,20 @@
             pageNo = parseInt(params.get("page"))
         else
             pageNo = 0
+
+        if(params.has("path"))
+            prevBreadcrumbPath = params.get("path") ?? ''
+        else
+            prevBreadcrumbPath = ''
      
         const cacheKey = `forum_${contextItemId}`
         const cachedValue = cache.get(cacheKey)
         if(cachedValue)
         {
             contextItem = cachedValue;
-            folderTitle = contextItem.Title;
+            folderTitle = ext(contextItem.Title);
+
+            breadcrumbPath = breadcrumbAdd(prevBreadcrumbPath, folderTitle, $location)
 
             subfoldersComponent?.reload(contextItem, subfoldersComponent.KEEP_SELECTION)
             notesComponent?.reload(contextItem, notesComponent.KEEP_SELECTION)
@@ -94,8 +106,10 @@
         contextItem  = readItem
         if(contextItem)
         {
-            folderTitle = contextItem.Title;
+            folderTitle = ext(contextItem.Title);
             isRootFolder = !!contextItem.IsRoot
+
+            breadcrumbPath = breadcrumbAdd(prevBreadcrumbPath, folderTitle, $location)
 
             const allElementsNo = contextItem.NotesCount + contextItem.FoldersCount
             allPagesNo = Math.floor(allElementsNo / pageElementsNo)
@@ -176,7 +190,7 @@
         contextItem = await readContextItem(contextItemId);
         if(contextItem)
         {
-            folderTitle = contextItem.Title;
+            folderTitle = ext(contextItem.Title);
             isRootFolder = !!contextItem.IsRoot
 
             const allElementsNo = contextItem.NotesCount + contextItem.FoldersCount
@@ -211,17 +225,17 @@
             fab: 'M00',
             operations: [
                 {
-                    caption: "View",
+                    caption: "_; View; Ver; Widok",
                     operations: [
                         ... (!folder.IsRoot) ? [
                             {
                                 icon: FaPostPlus,
-                                caption: 'New thread',
+                                caption: '_; New thread; Nuevo hilo; Nowy wątek',
                                 action: (f) => push(`/newthread/${contextItemId}`),
                                 tbr: 'A'
                             } ]: [],
                         {
-                            caption: 'Refresh',
+                            caption: '_; Refresh; Actualizar; Odśwież',
                             icon: FaSync,
                             action: async (f) => await refreshView(),
                             tbr: 'C',
@@ -294,7 +308,18 @@
                 title={folderTitle}>
 
                 <section class="w-full place-self-center max-w-3xl relative">
+                    
+                    {#if breadcrumbPath}
+                        <Breadcrumb class="hidden sm:block mb-5" path={breadcrumbPath} />
+                    {/if}
+
+
+                    <p class="hidden sm:block mt-3 ml-3 pb-5 text-lg text-left">
+                        {folderTitle}
+                    </p>
+
                     <!-- paginator -->
+
                     <div class="flex flex-row  mt-2 ">
                         <section class="ml-auto mr-2">
                             <Paginator {onPage} {pageNo} {allPagesNo} bind:this={paginatorTop}/>
@@ -303,12 +328,12 @@
             
                 <List   self={contextItem} 
                         a='Folders'
-                        title={folderTitle} 
+                        
                         toolbarOperations={ (el) => [] } 
                         orderAttrib='Order'
                         bind:this={subfoldersComponent}>
                     <ListTitle      a='Title' 
-                                    hrefFunc={(folder) => `${folder.href}`}
+                                    hrefFunc={(folder) => `${folder.href}?path=${breadcrumbPath}`}
                                     />
                     
                     <ListSummary    a='Summary'
@@ -330,7 +355,7 @@
                         orderAttrib='Order'
                         bind:this={notesComponent}>
                     <ListTitle      a='Title' 
-                                    hrefFunc={(note) => `${note.href}`}
+                                    hrefFunc={(note) => `${note.href}?path=${breadcrumbPath}`}
                                     />
                     <ListSummary    a='Summary' 
                                     />

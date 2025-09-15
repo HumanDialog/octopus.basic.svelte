@@ -1,0 +1,225 @@
+{
+		"Book": {
+			"Title": "The Kanban Board: A Guide to Visually Managing Work and Increasing Efficiency",
+			"FirstPage": "article-what-is-kanban-",
+			"ChaptersNo": "1",
+			"PagesNo": "7",
+			"Id" : "",
+			"Tags": { "date":"21.07.2025", "description":"Kanban is a visual workflow management method that helps teams increase efficiency, transparency, and fluidity by visualizing tasks, limiting work in progress (WIP), and continuously improving processes.", "author":"Adam Gajewski", "author_desc":"Humand Dialog CEO, ObjectReef core developer", "author_img":"/blog/authors/aga.png", "author_x":"https://x.com/agajewski_", "author_li":"https://www.linkedin.com/in/adgajewski/", "recommended":"[{\"title\": \"Get started for free\",\"img\": \"/ico/objectreeficon.png\",\"href\": \"/auth/signup?redirect=https%3A%2F%2Foctopus.objectreef.dev%2F%23%2F\",\"desc\": \"Sign up for free and start organizing your tasks.\"}]", "MTR":"11 min" },
+			"TOC" : [
+            {
+                "Chapter": "Article",
+				"Id": "article-what-is-kanban-",
+                "Pages": [
+	                    {
+                        "Page": "What is Kanban? ",
+                        "Id": "article-what-is-kanban-"
+			          	},
+
+	                    {
+                        "Page": "Kanban Board: a Visual Map of Your Workflow",
+                        "Id": "article-kanban-board-a-visual-map-of-your-workflow"
+			          	},
+
+	                    {
+                        "Page": "Kanban Cards: the Heart of Task Visualization",
+                        "Id": "article-kanban-cards-the-heart-of-task-visualization"
+			          	},
+
+	                    {
+                        "Page": "Where Kanban Finds Application. From IT to HR and Everyday Tasks",
+                        "Id": "article-where-kanban-finds-application-from-it-to-hr-and-everyday-tasks"
+			          	},
+
+	                    {
+                        "Page": "Kanban vs. Scrum: When to Choose Which Project Management Method?",
+                        "Id": "article-kanban-vs-scrum-when-to-choose-which-project-management-method-",
+                        "Subjects": [
+							{
+								"Subject":"Hybrid Approaches: Scrumban",
+								"Id":"hybrid-approaches-scrumban"
+							}
+						]
+					},
+
+	                    {
+                        "Page": "How to Get Started with a Kanban Board? Simple Steps to Successful Implementation",
+                        "Id": "article-how-to-get-started-with-a-kanban-board-simple-steps-to-successful-implementation",
+                        "Subjects": [
+							{
+								"Subject":"Documenting the Current Process and Selecting a Tool:",
+								"Id":"documenting-the-current-process-and-selecting-a-tool-"
+							},
+							{
+								"Subject":"Setting Work in Progress (WIP) Limits and Creating Clear Rules:",
+								"Id":"setting-work-in-progress-wip-limits-and-creating-clear-rules-"
+							},
+							{
+								"Subject":"Implementing Feedback Loops and Continuously Measuring Progress:",
+								"Id":"implementing-feedback-loops-and-continuously-measuring-progress-"
+							}
+						]
+					},
+
+	                    {
+                        "Page": "Summary: Kanban Board at Your Fingertips.",
+                        "Id": "article-summary-kanban-board-at-your-fingertips-"
+			          	}
+                ]
+            }
+        ],
+
+		"Content":{
+	            "article-what-is-kanban-": {
+					"ChapterNo": 0,
+					"PageNo": 0,
+					"SubjectsNo": "0",
+					"PrevPage": "",
+					"PrevPageId": "",
+					"NextPage": "Kanban Board: a Visual Map of Your Workflow",
+					"NextPageId": "article-kanban-board-a-visual-map-of-your-workflow",
+			"Page": [
+						{
+							"Kind": "HTML",
+							"HTML": "<h1 hidden><b>Article</b></h1>"
+						},
+						{
+							"Kind": "IMG",
+							"PATH": "image3.jpg",
+							"Caption": "<figcaption>Photo by Jo Szczepanska on Unsplash </figcaption>"
+						},
+						{
+							"Kind": "HTML",
+							"HTML": "<p></p><p>Wondering how to <b>organize</b> tasks, <b>speed up</b> workflow and <b>increase</b> transparency in your team? In the world of dynamic project management, the <b>Kanban Board</b> appears as one of the most intuitive and powerful tools for visualizing and optimizing processes. Whether you work in IT, marketing, HR, or manage your own tasks, the Kanban method allows you to visualize your work, identify bottlenecks and effectively manage any project. In this comprehensive guide, you'll learn the basics of the Kanban method, how Kanban boards work, and discover their key benefits to help you achieve continuous improvement and better productivity. Get ready to revolutionize the way you work!</p><p></p><h2 id=\"article-what-is-kanban-\">What is Kanban? </h2><p><b>From Signaling at Toyota to Modern Project Management</b></p><p>Kanban is a term derived from the Japanese language, literally meaning \u201csignboard\u201d or \u201cvisual card.\u201d The method was born in Toyota's factories in Japan in the late 1940s, as part of the company's efforts to improve production line efficiency and reduce waste. Engineer Taiichi Ohno, considered the father of Kanban, was inspired by the \"pull\" (pull) system observed in American grocery stores, where inventory was replenished based on actual customer demand rather than forecasts. In 1953, this technique was adapted to create the \u201cjust-in-time\u201d system, which became an early approach to lean manufacturing management (Lean Manufacturing). At the time, physical Kanban cards served as visual cues to indicate when additional materials were needed, ensuring inventory control, smooth workflows and rapid response to changes.</p><p>Over the years, this visual work management system has transcended manufacturing and gained widespread use in knowledge-based fields. In the early 21st century, it was David J. Anderson who is often credited with pioneering the implementation of Kanban in software development in 2005. Since then, the Kanban method has evolved and is widely used in various industries and functional departments, such as IT, marketing, HR, product management, finance, healthcare, education and even in personal task management. Research shows that Kanban is global and has gone beyond its original use in IT, with growing application in product management, sales and human resources.</p>"
+						}
+					]
+				},
+	            "article-kanban-board-a-visual-map-of-your-workflow": {
+					"ChapterNo": 0,
+					"PageNo": 1,
+					"SubjectsNo": "0",
+					"PrevPage": "What is Kanban? ",
+					"PrevPageId": "article-what-is-kanban-",
+					"NextPage": "Kanban Cards: the Heart of Task Visualization",
+					"NextPageId": "article-kanban-cards-the-heart-of-task-visualization",
+			"Page": [
+						{
+							"Kind": "HTML",
+							"HTML": "<h2 id=\"article-kanban-board-a-visual-map-of-your-workflow\">Kanban Board: a Visual Map of Your Workflow</h2><p>The Kanban board is the centerpiece of the method, serving as a visual map of your workflow. It is a visual task management system that clearly shows tasks and their current status.</p>"
+						},
+						{
+							"Kind": "IMG",
+							"PATH": "image4.jpg",
+							"Caption": "<figcaption>Photo by Eden Constantino on Unsplash </figcaption>"
+						},
+						{
+							"Kind": "HTML",
+							"HTML": "<p>The basic Kanban board consists of three main columns, representing stages of work:</p><ul><li>\u201c<b>To Do</b>\u201d (To Do): Tasks waiting to be started.</li><li>\u201c<b>In Progress / Doing</b>\u201d (In Progress): Tasks that team members are currently working on.</li><li>\u201c<b>Completed</b>\u201d (Completed / Done): Tasks that have been completed.</li></ul><p>In practice, these columns can be customized and expanded at will to reflect the specifics of a particular process, for example, adding a \u201cVerification\u201d or \u201cTesting\u201d step. The board provides a bird's eye view of the entire process, helping teams identify bottlenecks, manage priorities and optimize throughput.</p><p>Kanban boards can take physical form (such as a white board and sticky notes) or digital form (within project management software). Physical boards are simple and tangible, great for teams working in the same location. In contrast, digital Kanban boards, such as you'll find in <a href=\" https://octopus.objectreef.dev\">Octopus</a>, are ideal for distributed teams, complex projects, automation and tracking performance metrics. Regardless of the format, the key is that the board clearly and quickly communicates key information about the status of tasks.</p>"
+						}
+					]
+				},
+	            "article-kanban-cards-the-heart-of-task-visualization": {
+					"ChapterNo": 0,
+					"PageNo": 2,
+					"SubjectsNo": "0",
+					"PrevPage": "Kanban Board: a Visual Map of Your Workflow",
+					"PrevPageId": "article-kanban-board-a-visual-map-of-your-workflow",
+					"NextPage": "Where Kanban Finds Application. From IT to HR and Everyday Tasks",
+					"NextPageId": "article-where-kanban-finds-application-from-it-to-hr-and-everyday-tasks",
+			"Page": [
+						{
+							"Kind": "HTML",
+							"HTML": "<h2 id=\"article-kanban-cards-the-heart-of-task-visualization\">Kanban Cards: the Heart of Task Visualization</h2><p>Kanban cards are the heart of the system, representing individual work items. They can be tasks, user stories, bug reports, or requests for new features. Their main purpose is to visualize work in its various stages of flow.</p><p>Kanban cards are effective because they are visually consistent, easy to use and contain enough information to quickly understand the task. There is no single, strictly defined format for Kanban cards; they can be designed and customized for any process.</p><p>The key information typically found on a Kanban card is:</p><ul><li>Task name/job number/title: A brief description of the task, e.g., \"Fix the \u2018page load failure\u2019 error in the resource section of the website.\"</li><li>Priority level: E.g. \"High.\"</li><li>Due date: E.g. \"November 8.\"</li><li>Task description: More detailed context.</li><li>Assigned/Responsible: The person or team responsible for the task.</li><li>Type of error/task: In case of notifications.</li><li>Tags or categories: For further classification.</li><li>Estimated time or effort rate.</li></ul><p>"
+						},
+						{
+							"Kind": "IMG",
+							"PATH": "image5.jpg",
+							"Caption": "</p><figcaption>Photo by Kier in Sight Archives on Unsplash </figcaption>"
+						},
+						{
+							"Kind": "HTML",
+							"HTML": "<p>Physical cards often come in the form of sticky notes. The back of the card can be used to provide additional context, comments or observations. On digital boards, such as those at <a href=\" https://octopus.objectreef.dev\">Octopus</a>, cards can include all of this information, as well as full task descriptions, assignments, deadlines, and even links to relevant documents and support files. Another big advantage of digital boards is the ability to use colors, stickers or labels to visually distinguish cards.</p>"
+						}
+					]
+				},
+	            "article-where-kanban-finds-application-from-it-to-hr-and-everyday-tasks": {
+					"ChapterNo": 0,
+					"PageNo": 3,
+					"SubjectsNo": "0",
+					"PrevPage": "Kanban Cards: the Heart of Task Visualization",
+					"PrevPageId": "article-kanban-cards-the-heart-of-task-visualization",
+					"NextPage": "Kanban vs. Scrum: When to Choose Which Project Management Method?",
+					"NextPageId": "article-kanban-vs-scrum-when-to-choose-which-project-management-method-",
+			"Page": [
+						{
+							"Kind": "HTML",
+							"HTML": "<h2 id=\"article-where-kanban-finds-application-from-it-to-hr-and-everyday-tasks\">Where Kanban Finds Application. From IT to HR and Everyday Tasks</h2><p>One of the greatest advantages of Kanban is its versatility and broad applicability. Although it originated in manufacturing, it has evolved into a flexible methodology that is used in many industries and use cases. Research from 2022 shows that Kanban is global and goes beyond its traditional IT applications.</p><p>Here are some of the areas where Kanban brings significant value:</p><p><b>Software Development</b> and IT Operations (DevOps): Kanban helps development teams manage feature requests, development tasks, testing and deployment processes. It is ideal for incident tracking, service requests and troubleshooting.</p><p><b>Marketing</b>: For managing content calendars, campaign flows, event planning and creative production. Enables streamlined collaboration and improved prioritization of tasks.</p><p><b>Human Resources (HR)</b>: From tracking candidates through the hiring process to deploying new employees, Kanban increases transparency in HR processes.</p><p><b>Product and Project Management</b>: For accelerating product processes, from idea to delivery, and for planning Agile projects, tracking deadlines and delivering results.</p><p><b>Customer Service/Professional Services</b>: To exceed customer expectations and streamline projects.</p><p><b>Legal and Finance Departments</b>: For organizing files, issues and deadlines in a secure space, and centralizing financial tasks from budgeting to invoicing.</p><p><b>Healthcare, Education, Construction, Media and Entertainment, Agencies</b>: Kanban supports cross-functional collaboration, streamlining projects and centralizing work.</p><p><b>Operations and Production</b>: Facilitates smooth workflow in operations and streamlines production.</p><p><b>Personal Task Management</b>: The Kanban board can be used to track personal tasks and prioritize based on urgency, helping to keep your to-do list organized.</p><p>Kanban scales to the needs of small, medium and large companies, a clear indication that it is effectively used on a large scale.</p>"
+						}
+					]
+				},
+	            "article-kanban-vs-scrum-when-to-choose-which-project-management-method-": {
+					"ChapterNo": 0,
+					"PageNo": 4,
+					"SubjectsNo": "1",
+					"PrevPage": "Where Kanban Finds Application. From IT to HR and Everyday Tasks",
+					"PrevPageId": "article-where-kanban-finds-application-from-it-to-hr-and-everyday-tasks",
+					"NextPage": "How to Get Started with a Kanban Board? Simple Steps to Successful Implementation",
+					"NextPageId": "article-how-to-get-started-with-a-kanban-board-simple-steps-to-successful-implementation",
+			"Page": [
+						{
+							"Kind": "HTML",
+							"HTML": "<h2 id=\"article-kanban-vs-scrum-when-to-choose-which-project-management-method-\">Kanban vs. Scrum: When to Choose Which Project Management Method?</h2><p>Both Kanban and Scrum are popular project management methodologies from the Agile family that help teams manage work more effectively and improve productivity. Both promote continuous collaboration, process improvement and breaking projects into smaller phases. However, they differ significantly in their approach to workflow management and scheduling, making them better suited to different types of projects and teams.</p><p>Kanban focuses on visualizing workflow and the continuous flow of tasks through the various stages. It uses a \u201cpull\u201d system, meaning that new tasks are taken up for completion only when spare capacity is available, rather than being imposed at fixed intervals. It does not have well-defined, fixed iterations such as sprints, which makes the system seen as a continuous stream of work. Kanban is particularly suitable for environments with frequently changing priorities or a constant influx of new tasks, such as IT departments handling requests, software maintenance teams or customer support. The methodology emphasizes maintaining existing roles, responsibilities and titles in the organization, making evolutionary rather than revolutionary changes. Work visualization, including work-in-progress (WIP) mitigation, helps teams avoid overload, reduce context switching and quickly identify bottlenecks, leading to smoother flow and better quality of work.</p>"
+						},
+						{
+							"Kind": "IMG",
+							"PATH": "image6.png",
+							"Caption": "<figcaption>Octopus kanban board</figcaption>"
+						},
+						{
+							"Kind": "HTML",
+							"HTML": "<p>Scrum, on the other hand, is based on fixed, short time iterations, called sprints, which typically last from one to four weeks. In Scrum, work management focuses on completing specific tasks and achieving specific goals within each sprint, with clearly defined deadlines. The framework also provides for structured meetings such as sprint planning, daily stand-ups, reviews and retrospectives. Scrum is best suited to projects with well-defined goals and a predictable work rhythm, and is often used in teams developing new software, developing new modular features or requiring specific, measurable results within a set timeframe. Unlike Kanban, Scrum introduces specific roles, such as Scrum Master or Product Owner.</p><p>It is worth noting that the two approaches are not mutually exclusive, and many teams opt for a hybrid model known as Scrumban, which combines the structural elements of Scrum with the flexibility and WIP limits of Kanban, aiming to reap the benefits of both methodologies. The final choice between Kanban and Scrum depends on the specifics of the project, its maturity and the needs of the team and the client.</p><h3 id=\"hybrid-approaches-scrumban\">Hybrid Approaches: Scrumban</h3><p>Many teams, seeking to combine the best of both methodologies, are adopting a hybrid approach known as Scrumban. Scrumban combines the structure of Scrum (e.g., regular meetings, iterative approach) with the flexibility of Kanban (e.g., WIP limits, continuous flow). It allows teams to benefit from the advantages of both methods, adapting them to their unique needs and dynamically changing priorities.</p>"
+						}
+					]
+				},
+	            "article-how-to-get-started-with-a-kanban-board-simple-steps-to-successful-implementation": {
+					"ChapterNo": 0,
+					"PageNo": 5,
+					"SubjectsNo": "3",
+					"PrevPage": "Kanban vs. Scrum: When to Choose Which Project Management Method?",
+					"PrevPageId": "article-kanban-vs-scrum-when-to-choose-which-project-management-method-",
+					"NextPage": "Summary: Kanban Board at Your Fingertips.",
+					"NextPageId": "article-summary-kanban-board-at-your-fingertips-",
+			"Page": [
+						{
+							"Kind": "HTML",
+							"HTML": "<h2 id=\"article-how-to-get-started-with-a-kanban-board-simple-steps-to-successful-implementation\">How to Get Started with a Kanban Board? Simple Steps to Successful Implementation</h2><p>Implementing Kanban does not require a major overhaul of your entire workflow. On the contrary, the Kanban method encourages you to start with what you're doing now and make incremental improvements. Here is a practical step-by-step guide to help you successfully implement Kanban:</p><h3 id=\"documenting-the-current-process-and-selecting-a-tool-\">Documenting the Current Process and Selecting a Tool:</h3><ul><li><b>Map your current workflow</b>: Identify the main stages that your work typically goes through. These will be columns on your Kanban board, e.g. \u201cTo Do,\u201d \u201cIn Project,\u201d \u201cIn Review,\u201d \u201cApproved,\u201d \u201cCompleted.\u201d Don't aim for perfection at the beginning - start with your current process and refine it over time.</li><li><b>Choose a Kanban tool</b>: You can start with a physical whiteboard (white board + sticky notes, ideal for teams working in the same location) or digital. For remote teams, complex projects, automation and tracking performance metrics, digital tools are the best choice. An example of such a tool is <a href=\" https://octopus.objectreef.dev\">Octopus</a>, which offers visual Kanban boards to easily manage tasks, prioritize work and track progress at each stage.</li></ul><h3 id=\"setting-work-in-progress-wip-limits-and-creating-clear-rules-\">Setting Work in Progress (WIP) Limits and Creating Clear Rules:</h3><ul><li><b>Define the work elements and create the cards</b>: Turn each individual job or assignment into a card and place it in the appropriate column. The cards should contain key information such as title, description (optional), assigned person (optional) and deadline.</li><li><b>Establish work-in-progress (WIP) limits</b>: This is crucial for success. Set limits on how many tasks can be in each active column (especially \u201cIn Progress\u201d) at any given time. A suggested starting point is 1.5 times the team size (e.g., a team of 4 \u2192 WIP limit = 6). This prevents overload and keeps the workflow smooth and focused.</li><li><b>Create process guidelines</b>: If you don't already have clear guidelines for what each stage means and when the task is ready to move, create them. These can be checklists in each column or on each card that specify the requirements to move to the next stage. This improves the overall process and helps the team complete tasks more efficiently.</li></ul><h3 id=\"implementing-feedback-loops-and-continuously-measuring-progress-\">Implementing Feedback Loops and Continuously Measuring Progress:</h3><ul><li><b>Implement short feedback loops</b>: This can be done by introducing daily meetings (Daily Standups), review steps or reports and dashboards showing key metrics. Regular meetings help teams identify bottlenecks and roadblocks.</li><li><b>Encourage continuous improvement</b>: As the team gradually adopts Kanban processes, encourage members to report what is working well and what can be improved. Promote a leadership attitude in which everyone looks for ways to improve.</li><li><b>Measure progress</b>: Track progress and performance, and be ready to adapt and change as you discover new and better ways of doing things. Key metrics to track are cycle time (the average time it takes a task to move through the entire workflow) and lead time (the total time from task initiation to completion and delivery) </li></ul>"
+						}
+					]
+				},
+	            "article-summary-kanban-board-at-your-fingertips-": {
+					"ChapterNo": 0,
+					"PageNo": 6,
+					"SubjectsNo": "0",
+					"PrevPage": "How to Get Started with a Kanban Board? Simple Steps to Successful Implementation",
+					"PrevPageId": "article-how-to-get-started-with-a-kanban-board-simple-steps-to-successful-implementation",
+					"NextPage": "",
+					"NextPageId": "",
+			"Page": [
+						{
+							"Kind": "HTML",
+							"HTML": "<h2 id=\"article-summary-kanban-board-at-your-fingertips-\">Summary: Kanban Board at Your Fingertips.</h2><p>Kanban is much more than a visual task board; it is a powerful workflow management methodology that brings structure, transparency and continuous improvement to teams and individuals. Through its emphasis on visualization, work-in-progress (WIP) limits and continuous flow, Kanban promotes transparency, focus and continuous improvement.</p><p>Its strength lies in its simplicity and flexibility - you don't have to change the entire process to reap its benefits. Whether you're managing a product team, planning a marketing campaign or organizing personal tasks, Kanban can scale to fit your needs.</p><p>"
+						},
+						{
+							"Kind": "IMG",
+							"PATH": "image7.png",
+							"Caption": "</p><figcaption>Octopus mobile Kanban board</figcaption>"
+						},
+						{
+							"Kind": "HTML",
+							"HTML": "<p>Start from where you are. Map your current workflow, create a basic board and start optimizing. Using tools such as <a href=\" https://octopus.objectreef.dev\">Octopus</a>, you can easily incorporate Kanban principles into your projects, gaining a visual approach that makes it easy to manage tasks and track progress. By adopting a continuous flow, you open the door to greater productivity, better quality and a culture of continuous learning in your organization.</p>"
+					}
+				]
+			}
+		}
+	}
+}

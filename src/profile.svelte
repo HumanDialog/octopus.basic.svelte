@@ -1,6 +1,6 @@
 <script>   
 	import { reef, session, signInHRef } from '@humandialog/auth.svelte';
-    import { onErrorShowAlert, mainContentPageReloader, Spinner, Page, editable, getNiceStringDateTime, startEditing} from '@humandialog/forms.svelte';
+    import { onErrorShowAlert, mainContentPageReloader, Spinner, Page, editable, getNiceStringDateTime, startEditing, i18n} from '@humandialog/forms.svelte';
 	import { location, querystring, link, push } from 'svelte-spa-router';
     import {tick} from 'svelte'
     import {FaComments} from 'svelte-icons/fa'
@@ -122,10 +122,12 @@
             push(href)
     }
 
+    const title = "_; Profile; Perfil; Profil"
+
 </script>
 
 <svelte:head>
-    <title>Profile | {__APP_TITLE__}</title>
+    <title>{title} | {__APP_TITLE__}</title>
 </svelte:head>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -162,7 +164,7 @@
                                 {/if}
                             </span>
                         {:else}
-                            Enter bio here
+                            <span>_; Enter information about yourself; Introduce información sobre ti mismo; Wpisz informację o sobie</span>
                         {/if}
                     </p>
                 {:else}
@@ -171,7 +173,7 @@
                     {/if}
                 {/if}
 
-                <h2>Contact information</h2>
+                <h2>_; Contact information; Información de contacto; Informacje kontaktowe</h2>
                 <a href="mailto:{user.Email}">{user.Email}</a>
 
                 {#if !isSelfProfile}
@@ -189,7 +191,7 @@
                     </button>
                 {/if}
 
-                <h2>Activity</h2>
+                <h2>_; Activity; Actividad; Aktywność</h2>
                 {#if user.CreatedNotes && user.CreatedNotes.length > 0}
                     <ul>
                     {#each user.CreatedNotes as post}
@@ -210,7 +212,7 @@
                     {/each}
                     </ul>
                 {:else}
-                    <p>No recent activity</p>
+                    <p>_; No recent activity; Sin actividad reciente; Brak ostatniej aktywności</p>
                 {/if}
                 
             </article>

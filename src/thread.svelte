@@ -22,7 +22,9 @@
             IcH2,
             IcH3,
             IcH4,
-            reloadVisibleTags
+            reloadVisibleTags, i18n,
+            breadcrumbAdd,
+            Breadcrumb
             } from '@humandialog/forms.svelte'
 	import { afterUpdate, tick } from 'svelte';
     import {location, querystring, push, link} from 'svelte-spa-router'
@@ -55,6 +57,9 @@
     let mobile = isDeviceSmallerThan("sm")
     let scrollToPost = 0
 
+    let prevBreadcrumbPath = ''
+    let breadcrumbPath = ''
+
     $: onParamsChanged($location)
 
     async function onParamsChanged(...args)
@@ -82,6 +87,11 @@
             scrollToPost = parseInt(params.get("res"))
         else
             scrollToPost = 0
+
+        if(params.has("path"))
+            prevBreadcrumbPath = params.get("path") ?? ''
+        else
+            prevBreadcrumbPath = ''
 
         noteRef = `./Note/${taskId}`
 
@@ -189,6 +199,8 @@
             })
         }
 
+        breadcrumbPath = breadcrumbAdd(prevBreadcrumbPath, note.Title, $location)
+
         isReadOnly = true; //(note.$acc & 0x2) == 0
 
         postResponses = [];
@@ -246,7 +258,7 @@
 
     let addOperations = [
         /*{
-            caption: 'Summary',
+            caption: '_; Summary; Resumen; Podsumowanie',
             action: async (f) =>
                 {
                     if(summary)
@@ -261,12 +273,12 @@
         },
         */
         {
-            caption: 'Attachement',
+            caption: '_; Attachement; Anexo; Załącznik',
             icon: FaPaperclip,
             action: (f) => runFileAttacher(ATTACH_FILE_DIRECT)
         },
         {
-            caption: 'Tag',
+            caption: '_; Tag; Etiqueta; Etykieta',
             icon: FaTag,
             action: async (f) =>
                 {
@@ -291,11 +303,11 @@
             tbr: 'C',
             operations: [
                 {
-                    caption: 'Thread',
+                    caption: '_; Thread; Hilo; Wątek',
                     //tbr: 'B',
                     operations: [
                         {
-                            caption: 'Reply',
+                            caption: '_; Reply; Responder; Odpowiedz',
                             icon: FaCommentPlus,
                             action: (f) => runAnswerEditor(),
                             tbr: 'A',
@@ -317,13 +329,13 @@
                             }
                         ] : [],
                         {
-                            caption: 'Follow',
+                            caption: '_; Follow; Seguir; Śledź',
                             icon: FaRegStar,        // FaStar
                             action: (f) => {} ,
                         },
                         {
                             icon: FaCopy,   // MdLibraryAdd
-                            caption: 'Add to Clipboard',
+                            caption: '_; Add to Clipboard; Añadir al portapapeles; Dodaj do schowka',
                             action: (f) => copyTaskToBasket(),
 
                         }
@@ -346,11 +358,11 @@
             fab: 'M00',
             operations: [
                 {
-                    caption: 'Thread',
+                    caption: '_; Thread; Hilo; Wątek',
                     preAction: questionElement.preventBlur,
                     operations: [
                         {
-                            caption: "Save",
+                            caption: "_; Save; Guardar; Zapisz",
                             icon: FaSave,
                             action: (f) => { questionElement?.save() },
                             tbr: 'A'
@@ -358,12 +370,12 @@
                     ]
                 },
                 {
-                    caption: 'Insert',
+                    caption: '_; Insert; Insertar; Wstaw',
                     preAction: questionElement.preventBlur,
                     tbr: 'B',
                     operations: [
                         {
-                            caption: 'Image',
+                            caption: '_; Image; Imagen; Obraz',
                             icon: FaImage,
                             action: (f) => questionElement.setImage(),
                             activeFunc: questionElement.isActiveImage,
@@ -371,19 +383,19 @@
                             hideToolbarCaption: true
                         },
                         {
-                            caption: 'Table',
+                            caption: '_; Table; Tabla; Tabela',
                             icon: FaTable,
                             action: (f) => questionElement.setTable(),
                             activeFunc: questionElement.isActiveTable
                         },
                         {
-                            caption: 'Attachement',
+                            caption: '_; Attachement; Anexo; Załącznik',
                             icon: FaPaperclip,
                             action: (f) => runFileAttacher(ATTACH_FILE_DIRECT),
                             tbr: 'A'
                         },
                         {
-                            caption: 'Tag',
+                            caption: '_; Tag; Etiqueta; Etykieta',
                             icon: FaTag,
                             action: async (f) =>
                                 {
@@ -401,12 +413,12 @@
                     ]
                 },
                 {
-                    caption: 'Text',
+                    caption: '_; Text; Texto; Tekst',
                     tbr: 'B',
                     preAction: questionElement.preventBlur,
                     operations: [
                         {
-                            caption: 'Bold',
+                            caption: '_; Bold; Negrita; Pogrubiony',
                             icon: FaBold,
                             action: (f) => questionElement.setBold(),
                             activeFunc: questionElement.isActiveBold,
@@ -414,7 +426,7 @@
                             hideToolbarCaption: true
                         },
                         {
-                            caption: 'Italic',
+                            caption: '_; Italic; Cursiva; Kursywa',
                             icon: FaItalic,
                             action: (f) => questionElement.setItalic(),
                             activeFunc: questionElement.isActiveItalic,
@@ -422,7 +434,7 @@
                             hideToolbarCaption: true
                         },
                         {
-                            caption: 'Underline',
+                            caption: '_; Underline; Subrayar; Podkreślenie',
                             icon: FaUnderline,
                             action: (f) => questionElement.setUnderline(),
                             activeFunc: questionElement.isActiveUnderline,
@@ -430,7 +442,7 @@
                             hideToolbarCaption: true
                         },
                         {
-                            caption: 'Strikethrough',
+                            caption: '_; Strikethrough; Tachado; Przekreślenie',
                             icon: FaStrikethrough,
                             action: (f) => questionElement.setStrikethrough(),
                             activeFunc: questionElement.isActiveStrikethrough,
@@ -438,59 +450,59 @@
                     ]
                 },
                 {
-                    caption: 'Styles',
+                    caption: '_; Styles; Estilos; Style',
                     tbr: 'B',
                     preAction: questionElement.preventBlur,
                     operations: [
                         {
-                            caption: 'Normal',
+                            caption: '_; Normal; Normal; Normalny',
                             icon: FaRemoveFormat,
                             action: (f) => questionElement.setNormal(),
                             activeFunc: questionElement.isActiveNormal,
                         },
                         {
-                            caption: 'Heading 1',
+                            caption: '_; Heading 1; Título 1; Nagłówek 1',
                             icon: IcH1,
                             action: (f) => questionElement.setHeading(1),
                             activeFunc: questionElement.isActiveH1
                         },
                         {
-                            caption: 'Heading 2',
+                            caption: '_; Heading 2; Título 2; Nagłówek 2',
                             icon: IcH2,
                             action: (f) => questionElement.setHeading(2),
                             activeFunc: questionElement.isActiveH2
                         },
                         {
-                            caption: 'Heading 3',
+                            caption: '_; Heading 3; Título 3; Nagłówek 3',
                             icon: IcH3,
                             action: (f) => questionElement.setHeading(3),
                             activeFunc: questionElement.isActiveH3
                         },
                         {
-                            caption: 'Heading 4',
+                            caption: '_; Heading 4; Título 4; Nagłówek 4',
                             icon: IcH4,
                             action: (f) => questionElement.setHeading(4),
                             activeFunc: questionElement.isActiveH4
                         },
                         {
-                            caption: 'Code',
+                            caption: '_; Code; Código; Kod',
                             icon: FaCode,
                             action: (f) => questionElement.setCode(),
                             activeFunc: questionElement.isActiveCode,
                         },
-                        {
+                   /*     {
                             caption: 'Comment',
                             icon: FaComment,
                             action: (f) => questionElement.setComment(),
                             activeFunc: questionElement.isActiveComment,
-                        },
+                        }, */
                         {
-                            caption: 'Quote',
+                            caption: '_; Quote; Cita; Cytat',
                             icon: FaQuoteRight,
                             action: (f) => questionElement.setQuote(),
                             activeFunc: questionElement.isActiveQuote,
                         },
-                        {
+                    /*    {
                             caption: 'Warning',
                             icon: FaExclamationTriangle,
                             action: (f) => questionElement.setWarning(),
@@ -501,9 +513,9 @@
                             icon: FaInfo,
                             action: (f) => questionElement.setInfo(),
                             activeFunc: questionElement.isActiveInfo,
-                        },
+                        }, */
                         {
-                            caption: 'BulletList',
+                            caption: '_; BulletList; Lista con viñetas; Lista punktowana',
                             icon: FaListUl,
                             action: (f) => questionElement.setBulletList(),
                             activeFunc: questionElement.isActiveBulletList,
@@ -961,30 +973,30 @@
                 fab: 'M00',
                 operations: [
                     {
-                        caption: 'Reply',
+                        caption: '_; Reply; Responder; Odpowiedz',
                         preAction: answerElement.preventBlur,
                         tbr: 'B',
                         operations:[
                             {
-                                caption: 'Publish',
+                                caption: '_; Publish; Publicar; Opublikuj',
                                 icon: FaPaperPlane,
                                 action: (f) => { postAnswer() },
                                 tbr: 'A'
                             },
                             {
-                                caption: 'Cancel answering',
+                                caption: '_; Cancel; Cancelar; Anuluj',
                                 icon: FaTimes,
                                 action: (f) => { askLeaveAnswer() },
                             }
                         ]
                     },
                     {
-                        caption: 'Insert',
+                        caption: '_; Insert; Insertar; Wstaw',
                         tbr: 'B',
                         preAction: answerElement.preventBlur,
                         operations: [
                             {
-                                caption: 'Image',
+                                caption: '_; Image; Imagen; Obraz',
                                 icon: FaImage,
                                 action: (f) => answerElement.setImage(),
                                 activeFunc: answerElement.isActiveImage,
@@ -992,13 +1004,13 @@
                                 hideToolbarCaption: true
                             },
                             {
-                                caption: 'Table',
+                                caption: '_; Table; Tabla; Tabela',
                                 icon: FaTable,
                                 action: (f) => answerElement.setTable(),
                                 activeFunc: answerElement.isActiveTable
                             },
                             {
-                                caption: 'Attachement',
+                                caption: '_; Attachement; Anexo; Załącznik',
                                 icon: FaPaperclip,
                                 action: (f) => runFileAttacher(ATTACH_TEMPORARY_FILE),
                                 tbr: 'A',
@@ -1007,12 +1019,12 @@
                         ]
                     },
                     {
-                    caption: 'Text',
+                    caption: '_; Text; Texto; Tekst',
                     tbr: 'B',
                     preAction: answerElement.preventBlur,
                     operations: [
                         {
-                            caption: 'Bold',
+                            caption: '_; Bold; Negrita; Pogrubiony',
                             icon: FaBold,
                             action: (f) => answerElement.setBold(),
                             activeFunc: answerElement.isActiveBold,
@@ -1020,7 +1032,7 @@
                             hideToolbarCaption: true
                         },
                         {
-                            caption: 'Italic',
+                            caption: '_; Italic; Cursiva; Kursywa',
                             icon: FaItalic,
                             action: (f) => answerElement.setItalic(),
                             activeFunc: answerElement.isActiveItalic,
@@ -1028,7 +1040,7 @@
                             hideToolbarCaption: true
                         },
                         {
-                            caption: 'Underline',
+                            caption: '_; Underline; Subrayar; Podkreślenie',
                             icon: FaUnderline,
                             action: (f) => answerElement.setUnderline(),
                             activeFunc: answerElement.isActiveUnderline,
@@ -1036,7 +1048,7 @@
                             hideToolbarCaption: true
                         },
                         {
-                            caption: 'Strikethrough',
+                            caption: '_; Strikethrough; Tachado; Przekreślenie',
                             icon: FaStrikethrough,
                             action: (f) => answerElement.setStrikethrough(),
                             activeFunc: answerElement.isActiveStrikethrough,
@@ -1044,59 +1056,59 @@
                     ]
                 },
                 {
-                    caption: 'Styles',
+                    caption: '_; Styles; Estilos; Style',
                     tbr: 'B',
                     preAction: answerElement.preventBlur,
                     operations: [
                         {
-                            caption: 'Normal',
+                            caption: '_; Normal; Normal; Normalny',
                             icon: FaRemoveFormat,
                             action: (f) => answerElement.setNormal(),
                             activeFunc: answerElement.isActiveNormal,
                         },
                         {
-                            caption: 'Heading 1',
+                            caption: '_; Heading 1; Título 1; Nagłówek 1',
                             icon: IcH1,
                             action: (f) => answerElement.setHeading(1),
                             activeFunc: answerElement.isActiveH1
                         },
                         {
-                            caption: 'Heading 2',
+                            caption: '_; Heading 2; Título 2; Nagłówek 2',
                             icon: IcH2,
                             action: (f) => answerElement.setHeading(2),
                             activeFunc: answerElement.isActiveH2
                         },
                         {
-                            caption: 'Heading 3',
+                            caption: '_; Heading 3; Título 3; Nagłówek 3',
                             icon: IcH3,
                             action: (f) => answerElement.setHeading(3),
                             activeFunc: answerElement.isActiveH3
                         },
                         {
-                            caption: 'Heading 4',
+                            caption: '_; Heading 4; Título 4; Nagłówek 4',
                             icon: IcH4,
                             action: (f) => answerElement.setHeading(4),
                             activeFunc: answerElement.isActiveH4
                         },
                         {
-                            caption: 'Code',
+                            caption: '_; Code; Código; Kod',
                             icon: FaCode,
                             action: (f) => answerElement.setCode(),
                             activeFunc: answerElement.isActiveCode,
                         },
-                        {
+                    /*    {
                             caption: 'Comment',
                             icon: FaComment,
                             action: (f) => answerElement.setComment(),
                             activeFunc: answerElement.isActiveComment,
-                        },
+                        }, */
                         {
-                            caption: 'Quote',
+                            caption: '_; Quote; Cita; Cytat',
                             icon: FaQuoteRight,
                             action: (f) => answerElement.setQuote(),
                             activeFunc: answerElement.isActiveQuote,
                         },
-                        {
+                   /*     {
                             caption: 'Warning',
                             icon: FaExclamationTriangle,
                             action: (f) => answerElement.setWarning(),
@@ -1107,9 +1119,9 @@
                             icon: FaInfo,
                             action: (f) => answerElement.setInfo(),
                             activeFunc: answerElement.isActiveInfo,
-                        },
+                        }, */
                         {
-                            caption: 'BulletList',
+                            caption: '_; BulletList; Lista con viñetas; Lista punktowana',
                             icon: FaListUl,
                             action: (f) => answerElement.setBulletList(),
                             activeFunc: answerElement.isActiveBulletList,
@@ -1127,12 +1139,12 @@
 
     const extraPaletteCommands = [
         {
-            caption: 'Publish',
+            caption: '_; Publish; Publicar; Opublikuj',
             icon: FaPaperPlane,
             action: () => postAnswer()
         },
         {
-            caption: 'Cancel answering',
+            caption: '_; Cancel; Cancelar; Anuluj',
             icon: FaTimes,
             action: () => askLeaveAnswer()
         }
@@ -1140,7 +1152,7 @@
 
     const extraInsertPaletteCommands = [
          {
-            caption: 'Attachement',
+            caption: '_; Attachement; Anexo; Załącznik',
             icon: FaPaperclip,
             action: () => runFileAttacher(ATTACH_TEMPORARY_FILE)
         }
@@ -1172,6 +1184,9 @@
             title={note.Title}>
     <section class="w-full flex justify-center">
         <article class="w-full prose prose-base prose-zinc dark:prose-invert mx-2  mb-64">
+            {#if breadcrumbPath}
+                <Breadcrumb class="not-prose hidden sm:block" path={breadcrumbPath} collapseLonger/>
+            {/if}
             <section class="w-full flex flex-row justify-between">
                     <p class="">
                         {note.Index}
@@ -1359,7 +1374,7 @@
                                     border border-stone-300 focus:outline-none dark:border-stone-600
                                     flex items-center rounded"
                                     on:click={(e) => {askLeaveAnswer()}}>
-                                <span class="ml-1">Cancel</span>
+                                <span class="ml-1">_; Cancel; Cancelar; Anuluj</span>
 
                             </button>
                             <button type="button"
@@ -1371,7 +1386,7 @@
                                     flex items-center rounded"
                                     on:click={(e) => {postAnswer()}}>
                                 <div class="w-5 h-5 mr-1"><FaPaperPlane/></div>
-                                <span class="ml-2">Publish</span>
+                                <span class="ml-2">_; Publish; Publicar; Opublikuj</span>
 
                             </button>
                         </section>
@@ -1392,7 +1407,7 @@
                                 on:click={(e) => {runAnswerEditor()}}
                                 >
                             <div class="w-5 h-5 mr-1"><FaCommentPlus/></div>
-                            <span class="ml-2">Reply</span>
+                            <span class="ml-2">_; Reply; Responder; Odpowiedz</span>
 
                         </button>
                     </section>
@@ -1408,23 +1423,41 @@
 </Page>
 {/if}
 
-<Modal title='Preparing...' bind:open={pendingResizing} mode={3} icon={FaCloudUploadAlt}>
+<Modal  title={i18n({en: 'Preparing...', es: 'Preparación...', pl: 'Przygotowanie...'})}  
+        bind:open={pendingResizing} mode={3} icon={FaCloudUploadAlt}>
     <Spinner delay={0}/>
-    <span class="ml-3">Your image is preparing</span>
+    <span class="ml-3">
+        _;
+        Your image is preparing;
+        Tu imagen se está preparando;
+        Twoje zdjęcie jest w trakcie przygotowywania
+    </span>
 </Modal>
 
-<Modal title='Uploading...' bind:open={pendingUploading} mode={3} icon={FaCloudUploadAlt}>
+<Modal  title={i18n({en: 'Uploading...', es: 'Cargando...', pl: 'Przesyłanie...'})} 
+        bind:open={pendingUploading} mode={3} icon={FaCloudUploadAlt}>
     <Spinner delay={0}/>
-    <span class="ml-3">Your file is uploading to the server</span>
+    <span class="ml-3">
+        _;
+        Your file is uploading to the server;
+        Tu archivo se está cargando en el servidor;
+        Twój plik jest przesyłany na serwer
+    </span>
 </Modal>
 
-<Modal title='Posting...' bind:open={pendingPosting} mode={3} icon={FaCloudUploadAlt}>
+<Modal  title={i18n({en: 'Posting...', es: 'Publicando...', pl: 'Wysyłanie...'})} 
+        bind:open={pendingPosting} mode={3} icon={FaCloudUploadAlt}>
     <Spinner delay={0}/>
-    <span class="ml-3">Your post is saved on the server</span>
+    <span class="ml-3">
+        _;
+        Your post is saved on the server;
+        Tu publicación se ha guardado en el servidor;
+        Twój post został zapisany na serwerze
+    </span>
 </Modal>
 
-<Modal  title="Leave"
-        content="Are you sure you want to leave the creation of a new post?"
+<Modal  title={i18n({en: 'Leave', es: 'Salir', pl: 'Opuść'})}
+        content={i18n({en: 'Are you sure you want to leave the creation of a new post?', es: '¿Estás seguro de que deseas abandonar la creación de una nueva publicación?', pl: 'Czy na pewno chcesz zrezygnować z tworzenia nowego posta?'})}
         icon={FaTimes}
         onOkCallback={leaveAnswer}
         bind:this={leaveModal}

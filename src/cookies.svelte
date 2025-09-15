@@ -2,6 +2,7 @@
     import {Toggle} from 'flowbite-svelte';
     import {cookies_saved_at, cookies_valid_until, cookies_allow_essential, cookies_allow_preferences, cookies_allow_analytics, cookies_allow_marketing} from './landing/cookie.preferences'
     import {link} from 'svelte-spa-router'
+    import {i18n} from '@humandialog/forms.svelte'
 
     let show: boolean = false;
     
@@ -92,26 +93,45 @@
             z-30 m-1">
     <div class="flex flex-row h-10 ">
         <div class="">
-            <p class="text-xs my-1 mx-4 text-ellipsis"><span class="font-semibold">This website uses cookies </span>for user session maintenance, analytics and remarketing. Read our 
-                <a href={privacy} use:link class="whitespace-nowrap underline">Privacy Policy</a> 
-                to learn more.</p>
+            <p class="text-xs my-1 mx-4 text-ellipsis"><span class="font-semibold">
+                _;
+                This website uses cookies;
+                Este sitio web utiliza cookies;
+                Ta strona internetowa wykorzystuje pliki cookie
+            </span>
+                _;
+                for user session maintenance, analytics and remarketing. Read our ;
+                para el mantenimiento de la sesión del usuario, análisis y remarketing. Lea nuestra ;
+                w celu utrzymania sesji użytkownika, analizy danych i remarketingu. Zapoznaj się z naszą
+                    <a href={privacy} use:link class="whitespace-nowrap underline pl-1">
+                        _; Privacy Policy; Política de privacidad; Polityką prywatności
+                    </a>
+                _;
+                to learn more.;
+                para obtener más información.;
+                aby dowiedzieć się więcej.
+            </p>
         </div>
         <div class="ml-auto text-right shrink-0 mx-4">
-            <button class="font-semibold pt-1 pb-2 mb-0 mx-1 w-20 text-sm px-1 bg-zinc-100  hover:bg-zinc-300 dark:bg-zinc-700 hover:dark:bg-zinc-600 rounded-md text-slate-900 dark:text-slate-100" on:click={on_deny}>Deny</button>
-            <button class="font-semibold pt-1 pb-2 mb-0 mx-1 w-20 text-sm px-1 bg-zinc-100 hover:bg-zinc-300 dark:bg-zinc-700 hover:dark:bg-zinc-600 rounded-md text-slate-900 dark:text-slate-100" on:click={on_customize}>Customize</button>
-            <button class="font-semibold pt-1 pb-2 mb-0 mx-1 w-20 text-sm px-1 bg-blue-700 hover:bg-indigo-400 dark:bg-indigo-500 hover:dark:bg-indigo-400 rounded-md text-slate-100 mr-2" on:click={on_allow_all}>Allow all</button>
+            <button class="font-semibold pt-1 pb-2 mb-0 mx-1 min-w-[5rem] text-sm px-1 bg-zinc-100  hover:bg-zinc-300 dark:bg-zinc-700 hover:dark:bg-zinc-600 rounded-md text-slate-900 dark:text-slate-100" on:click={on_deny}>_; Deny; Negar; Odrzuć</button>
+            <button class="font-semibold pt-1 pb-2 mb-0 mx-1 min-w-[5rem] text-sm px-1 bg-zinc-100 hover:bg-zinc-300 dark:bg-zinc-700 hover:dark:bg-zinc-600 rounded-md text-slate-900 dark:text-slate-100" on:click={on_customize}>_; Customize; Personalizar; Dostosuj</button>
+            <button class="font-semibold pt-1 pb-2 mb-0 mx-1 min-w-[5rem] text-sm px-1 bg-blue-700 hover:bg-indigo-400 dark:bg-indigo-500 hover:dark:bg-indigo-400 rounded-md text-slate-100 mr-2" on:click={on_allow_all}>_; Allow all; Permitir todo; Pozwól na wszystko</button>
         </div>
     </div>
     {#if customize}
     <section>
-        <p class="text-xs m-1 text-ellipsis">Select which types of cookies you agree to:</p>
+        <p class="text-xs m-1 text-ellipsis">
+            _;
+            Select which types of cookies you agree to:;
+            Seleccione los tipos de cookies que acepta:;
+            Wybierz, na jakie rodzaje plików cookie wyrażasz zgodę:</p>
         <div class="flex flex-row ">
-            <Toggle bind:checked={essential} disabled size="small" class="ml-2 mr-4" color="zinc"><span class="mr-4 text-zinc-500">Essential</span></Toggle>
-            <Toggle bind:checked={preferences} size="small" color="zinc"><span class="mr-4 text-zinc-100">Preferences</span></Toggle>
-            <Toggle bind:checked={analytics} size="small" color="zinc"><span class="mr-4 text-zinc-100">Analytics</span></Toggle>
-            <Toggle bind:checked={marketing} size="small" color="zinc"><span class="mr-4 text-zinc-100">Marketing</span></Toggle>
+            <Toggle bind:checked={essential} disabled size="small" class="ml-2 mr-4" color="zinc"><span class="mr-4 text-zinc-500">_; Essential; Esencial; Niezbędne</span></Toggle>
+            <Toggle bind:checked={preferences} size="small" color="zinc"><span class="mr-4 text-zinc-100">_; Preferences; Preferencias; Preferencje</span></Toggle>
+            <Toggle bind:checked={analytics} size="small" color="zinc"><span class="mr-4 text-zinc-100">_; Analytics; Analítica; Analityka</span></Toggle>
+            <Toggle bind:checked={marketing} size="small" color="zinc"><span class="mr-4 text-zinc-100">_; Marketing; Marketing; Marketing</span></Toggle>
             <div class="ml-auto text-right shrink-0">
-                <button class="font-semibold pt-1 pb-2 mb-0 mx-1 w-20 text-sm px-1 bg-blue-700 hover:bg-blue-900 dark:bg-indigo-600 hover:dark:bg-indigo-400 rounded-md text-slate-100 mr-2" on:click={on_save}>Save</button>
+                <button class="font-semibold pt-1 pb-2 mb-0 mx-1 w-20 text-sm px-1 bg-blue-700 hover:bg-blue-900 dark:bg-indigo-600 hover:dark:bg-indigo-400 rounded-md text-slate-100 mr-2" on:click={on_save}>_; Save; Guardar; Zapisz</button>
             </div>
         </div>
     </section>
@@ -125,24 +145,39 @@
         z-30 m-1">
 <!--div class="flex flex-col sm:hidden bottom-0 fixed h-30 w-full bg-slate-900 dark:bg-slate-200 text-zinc-100 dark:text-zinc-900 z-30 m-1"-->
     <div>
-        <p class="text-xs m-1 text-ellipsis"><span class="font-semibold">This website uses cookies </span>for user session maintenance, analytics and remarketing. Read our 
-            <a href={privacy} use:link class="whitespace-nowrap underline">Privacy Policy</a> 
-        to learn more.</p>
+        <p class="text-xs m-1 text-ellipsis"><span class="font-semibold">
+            _;
+            This website uses cookies;
+            Este sitio web utiliza cookies;
+            Ta strona internetowa wykorzystuje pliki cookie </span>
+            _;
+            for user session maintenance, analytics and remarketing. Read our ;
+            para el mantenimiento de la sesión del usuario, análisis y remarketing. Lea nuestra ;
+            w celu utrzymania sesji użytkownika, analizy danych i remarketingu. Zapoznaj się z naszą 
+            <a href={privacy} use:link class="whitespace-nowrap underline">_; Privacy Policy; Política de privacidad; Polityką prywatności</a> 
+            _;
+            to learn more.;
+            para obtener más información.;
+            aby dowiedzieć się więcej.
+        </p>
     </div>
     <div class="flex flex-row justify-around">
-        <button class="font-semibold pt-1 pb-2 mb-0 mx-1 w-20 text-sm px-1 bg-zinc-100  hover:bg-zinc-300 dark:bg-zinc-700 hover:dark:bg-zinc-600 rounded-md text-slate-900 dark:text-slate-100" on:click={on_deny}>Deny</button>
-        <button class="font-semibold pt-1 pb-2 mb-0 mx-1 w-20 text-sm px-1 bg-zinc-100 hover:bg-zinc-300  dark:bg-zinc-700 hover:dark:bg-zinc-600 rounded-md text-slate-900 dark:text-slate-100" on:click={on_customize}>Customize</button>
-        <button class="font-semibold pt-1 pb-2 mb-0 mx-1 w-20 text-sm px-1 bg-blue-700 hover:bg-indigo-400 dark:bg-indigo-500 hover:dark:bg-indigo-400 rounded-md text-slate-100 mr-2" on:click={on_allow_all}>Allow all</button>
+        <button class="font-semibold pt-1 pb-2 mb-0 mx-1 min-w-[5rem] text-sm px-1 bg-zinc-100  hover:bg-zinc-300 dark:bg-zinc-700 hover:dark:bg-zinc-600 rounded-md text-slate-900 dark:text-slate-100" on:click={on_deny}>_; Deny; Negar; Odrzuć</button>
+        <button class="font-semibold pt-1 pb-2 mb-0 mx-1 min-w-[5rem] text-sm px-1 bg-zinc-100 hover:bg-zinc-300  dark:bg-zinc-700 hover:dark:bg-zinc-600 rounded-md text-slate-900 dark:text-slate-100" on:click={on_customize}>_; Customize; Personalizar; Dostosuj</button>
+        <button class="font-semibold pt-1 pb-2 mb-0 mx-1 min-w-[5rem] text-sm px-1 bg-blue-700 hover:bg-indigo-400 dark:bg-indigo-500 hover:dark:bg-indigo-400 rounded-md text-slate-100 mr-2" on:click={on_allow_all}>_; Allow all; Permitir todo; Pozwól na wszystko</button>
     </div>
     {#if customize}
     <section>
-        <p class="text-xs m-1 mt-5 text-ellipsis">Select which types of cookies you agree to:</p>
+        <p class="text-xs m-1 mt-5 text-ellipsis">_;
+            Select which types of cookies you agree to:;
+            Seleccione los tipos de cookies que acepta:;
+            Wybierz, na jakie rodzaje plików cookie wyrażasz zgodę:</p>
         <div class="">
-            <Toggle bind:checked={essential} disabled size="small" class="m-2" color="zinc"><span class="text-zinc-500">Essential</span></Toggle>
-            <Toggle bind:checked={preferences}  size="small" class="m-2" color="zinc"><span class="text-zinc-100">Preferences</span></Toggle>
-            <Toggle bind:checked={analytics} size="small" class="m-2" color="zinc"><span class="text-zinc-100">Analytics</span></Toggle>
-            <Toggle bind:checked={marketing} size="small" class="m-2" color="zinc"><span class=" text-zinc-100">Marketing</span></Toggle>
-            <button class="font-semibold pt-1 pb-2 mb-0 mx-1 w-20 text-sm px-1 bg-blue-700 hover:bg-blue-900 dark:bg-indigo-600 hover:dark:bg-indigo-400 rounded-md text-slate-100 mr-2" on:click={on_save}>Save</button>
+            <Toggle bind:checked={essential} disabled size="small" class="m-2" color="zinc"><span class="text-zinc-500">_; Essential; Esencial; Niezbędne</span></Toggle>
+            <Toggle bind:checked={preferences}  size="small" class="m-2" color="zinc"><span class="text-zinc-100">_; Preferences; Preferencias; Preferencje</span></Toggle>
+            <Toggle bind:checked={analytics} size="small" class="m-2" color="zinc"><span class="text-zinc-100">_; Analytics; Analítica; Analityka</span></Toggle>
+            <Toggle bind:checked={marketing} size="small" class="m-2" color="zinc"><span class=" text-zinc-100">_; Marketing; Marketing; Marketing</span></Toggle>
+            <button class="font-semibold pt-1 pb-2 mb-0 mx-1 w-20 text-sm px-1 bg-blue-700 hover:bg-blue-900 dark:bg-indigo-600 hover:dark:bg-indigo-400 rounded-md text-slate-100 mr-2" on:click={on_save}>_; Save; Guardar; Zapisz</button>
         </div>
     </section>
     {/if}

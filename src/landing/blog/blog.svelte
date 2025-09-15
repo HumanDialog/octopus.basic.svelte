@@ -4,6 +4,7 @@
     //import {fetch_book} from '../doc.elements/utils'
     import Footer from '../footer.svelte'
     import Header from '../header.svelte'
+    import {i18n} from '@humandialog/forms.svelte'
 
        
     let book = null;
@@ -88,9 +89,9 @@
             
         </div>
         <div class="p-2 flex flex-row text-xs dark:text-stone-400">
-            <p class="flex-1">Date: <span class="font-semibold">{entry?.Tags?.date}</span></p>
-            <p class="flex-1">Minutes: <span class="font-semibold">{entry?.Tags?.MTR}</span></p>
-            <p class="flex-1">Author: <span class="font-semibold">{entry?.Tags?.author}</span></p>
+            <p class="flex-1">_; Date:; Fecha:; Data: <span class="font-semibold">{entry?.Tags?.date}</span></p>
+            <p class="flex-1">_; Minutes:; Actas:; Minuty: <span class="font-semibold">{entry?.Tags?.MTR}</span></p>
+            <p class="flex-1">_; Author:; Autor:; Autor: <span class="font-semibold">{entry?.Tags?.author}</span></p>
         </div>
         <div class = "  p-2
                         prose prose-stone max-w-none dark:prose-invert dark:text-stone-200
@@ -102,7 +103,12 @@
     {/each}
     </div>
     {:else}
-        <p class="sm:mt-20 sm:mb-64">There are no articles yet</p>
+        <p class="sm:mt-20 sm:mb-64">
+            _;
+            There are no articles yet;
+            Aún no hay artículos;
+            Nie ma jeszcze żadnych artykułów    
+        </p>
     {/if}
 </div>
 

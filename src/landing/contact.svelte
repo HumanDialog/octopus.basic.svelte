@@ -3,6 +3,7 @@
     import Header from './header.svelte'
     import Footer from './footer.svelte';
     import Obfuscator from './email.obfuscator.svelte'
+    import {wholeAppReloader, i18n} from '@humandialog/forms.svelte'
 
     let captcha_element;
     let name;
@@ -30,19 +31,19 @@
     {
         if(!email)
         {
-            err_msg = "E-mail address is empty";
+            err_msg = "_; E-mail address is empty; La dirección de correo electrónico está vacía.; Adres e-mail jest pusty.";
             return false;
         }
 
         if(!is_valid_email_address(email))
         {
-            err_msg = "The e-mail address appears to be incorrect"
+            err_msg = "_; The e-mail address appears to be incorrect; La dirección de correo electrónico parece ser incorrecta.; Adres e-mail jest nieprawidłowy."
             return false;
         }
 
         if(!content)
         {
-            err_msg = "Type the content of your message"
+            err_msg = "_; Type the content of your message; Escriba el contenido de su mensaje.; Wpisz treść wiadomości"
             return false;
         }
 
@@ -129,12 +130,15 @@
         show_spinner = false;
     }
 
+    const submit_caption = () => i18n(["Submit", "Enviar", "Wyślij"])
 </script>
 
 <svelte:head>
     <script src="https://www.google.com/recaptcha/api.js?render=explicit" async defer></script>
     <title>Contact | {__APP_TITLE__}</title>
 </svelte:head>
+
+{#key $wholeAppReloader}
 
 <div class="pb-20 bg-gradient-to-b from-slate-200 via-white to-indigo-100 text-gray-900">
 
@@ -153,14 +157,15 @@
             <div class="text-left text-sm text-slate-600  darkx:text-slate-400">
                 <h1
                     class="text-slate-900 font-extrabold text-3xl sm:text-4xl lg:text-5xl tracking-tight darkx:text-white">
-                    Contact us</h1>
+                    _; Contact us; Contáctenos; Skontaktuj się</h1>
                 <p class="mt-6 text-lg">
                     Human Dialog S.A. 
                 </p>
                 <p class="mt-3">
-                    <span class="text-sm">Headquarter:</span><br>
+                    <span class="text-sm">_; Headquarter:; Sede:; Siedziba</span><br>
                     Kazimierza Wielkiego 27<br>
-                    50-077 Wrocław, Poland
+                    50-077 Wrocław, 
+                    _; Poland; Polonia; Polska
                 </p>
                 <p class="mt-3">
                     KRS: 0000601130<br>
@@ -178,7 +183,7 @@
             
             <div class="sm:flex-none sm:w-[480px] flex flex-col gap-3">
                 <section class="sm:w-full flex flex-col sm:flex-row gap-3">
-                    <input  placeholder="Name" 
+                    <input  placeholder={i18n(["Name", "Nombre", "Imię"])} 
                             bind:value={name}
                             class=" flex-1
                                     h-10 
@@ -188,7 +193,7 @@
                                     text-sm  
                                     block
                                     p-2.5 ">
-                    <input type="email" placeholder="E-mail address" 
+                    <input type="email" placeholder={i18n(["E-mail address", "Dirección de correo electrónico", "Adres e-mail"])} 
                             bind:value={email}
                             class=" flex-1
                                     h-10 
@@ -199,7 +204,7 @@
                                     block  
                                     p-2.5 ">
                 </section>
-                <input  placeholder="Subject" 
+                <input  placeholder={i18n(["Subject", "Asunto", "Temat"])} 
                         bind:value={subject}
                         class=" h-10 
                                 bg-gray-50 darkx:bg-gray-700/50
@@ -208,7 +213,7 @@
                                 text-sm  
                                 block
                                 p-2.5 ">
-                <textarea  placeholder="Your message" 
+                <textarea  placeholder={i18n(["Your message", "Tu mensaje", "Twoja wiadomość"])} 
                         bind:value={content}
                         class=" h-40 
                                 bg-gray-50 darkx:bg-gray-700/50
@@ -221,21 +226,26 @@
                 <div bind:this={captcha_element} class="ml-auto h-[78px]"></div>
 
                 <p class="text-sm text-slate-600  darkx:text-slate-400 text-right">
-                    By clicking <span class="font-semibold">Submit</span> you agree with our <a href="/privacy-policy" class="underline">Privacy Policy</a>.
+                    _; By clicking ; Al hacer clic en ; Kliknięcie 
+                    <span class="font-semibold">{submit_caption()}</span>
+                    _; you agree with our ; aceptas nuestra ; oznacza akceptację
+                    <a href="/privacy-policy" class="underline">
+                        _; Privacy Policy; Política de privacidad ; Polityki prywatności
+                    </a>.
                 </p>
                 <button class=" block h-10 w-30 ml-auto
                                 bg-slate-900 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50 text-white font-semibold px-6 rounded-lg  flex items-center justify-center  darkx:bg-indigo-600 darkx:highlight-white/20 darkx:hover:bg-indigo-400"
                                 on:click={submit}
                                 disabled={show_spinner}>
                     {#if !show_spinner}
-                            Submit
+                            {@html submit_caption()}
                     {:else}
                         <div role="status" class="w-full">
                             <svg aria-hidden="true" class="w-5 h-5  text-slate-800 animate-spin darkx:text-indigo-400 fill-gray-200 darkx:fill-indigo-900" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
                                 <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
                             </svg>
-                            <span class="sr-only">Sending...</span>
+                            <span class="sr-only">_; Sending...; Enviando...; Wysyłanie...</span>
                         </div>
                     {/if}
                 </button>
@@ -257,3 +267,5 @@
 </section>
 
 </div>
+
+{/key}

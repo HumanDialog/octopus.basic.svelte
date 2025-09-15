@@ -1,6 +1,6 @@
 <script>
     import {reef, session, Authorized, NotAuthorized} from '@humandialog/auth.svelte'
-	import {Layout, onErrorShowAlert, Spinner} from '@humandialog/forms.svelte';
+	import {Layout, onErrorShowAlert, Spinner, i18n, Console, registerKicksObserver, unregisterKicksObserver} from '@humandialog/forms.svelte';
     import Sidebar from './sidebar.svelte'
 
     import SidebarFolders from './sidebar.folders.svelte'
@@ -8,9 +8,8 @@
     
     import {push} from 'svelte-spa-router'
 
+	import AppIcon from './appicon.svelte'
 
-    import AppIcon from './appicon.svelte'
-    
     import FaFolder from 'svelte-icons/fa/FaFolder.svelte'
     import {FaUsersCog, FaSignOutAlt, FaList, FaComments, FaUser, FaPaste} from 'svelte-icons/fa/'
 
@@ -28,9 +27,11 @@
     import NewThread from './thread.new.svelte'
     import Forum from './forum.svelte'
     import Profile from './profile.svelte'
-    
+    import AllTaskLists from './tasklists.all.svelte'
+    import GroupFolders from './folders.group.svelte'
+    import GeneralChannels from './channels.general.svelte'
+    import PrivateChannels from './channels.private.svelte'
 
-    import {Console} from '@humandialog/forms.svelte'
     import { tick, onMount } from 'svelte';
 
     const objectreef_io = __OBJECTREEF_IO__
@@ -102,7 +103,9 @@
                 return {
                     'Messages': {
                             icon: FaComments,
-                            component: SidebarMessages
+                            component: SidebarMessages,
+                            mountObserver: mountMessagesObserver,
+                            badgeObtainerAsync: async () => await getUnreadMessages()
                         }
                 }
 
@@ -118,6 +121,51 @@
             default:
                 return { }
             }
+        }
+    }
+
+    let kicksObserver = 0
+    let rerenderTabs;
+    function mountMessagesObserver(rerenderTabsCb)
+    {
+        rerenderTabs = rerenderTabsCb;
+        let lazyFetcher = setTimeout(() => { 
+            lazyFetcher=0; 
+            fetchSubscribedChannels()}, 1000)
+
+        return () => {
+        
+            if(lazyFetcher)
+            {
+                clearTimeout(lazyFetcher)
+                lazyFetcher = 0
+            }
+            
+            if(kicksObserver)
+            {
+                unregisterKicksObserver(kicksObserver)
+                kicksObserver = 0
+            }
+        }
+    }
+
+    async function fetchSubscribedChannels()
+    {
+        const labels = await reef.get('user/GetSubscribedChannelsKickLabels', onErrorShowAlert)
+        if(labels && Array.isArray(labels) && labels.length > 0)
+            kicksObserver = registerKicksObserver(labels, 60, refreshMessagesTab)
+    }
+
+    async function getUnreadMessages()
+    {
+        return await reef.get('user/GetUnreadMessagesNo', onErrorShowAlert)
+    }
+
+    async function refreshMessagesTab(labels)
+    {       
+        if(rerenderTabs)
+        {
+            setTimeout(() => rerenderTabs(), 4000)
         }
     }
 
@@ -150,6 +198,8 @@
                 mainContent : {
                     routes : {
                         '/' :           { component: AppMain},
+                        '/nav' :        { component: AppMain},
+                        '/nav/*' :      { component: AppMain},
                         '/tasklist':    { component: Tasklist},
                         '/tasklist/*':  { component: Tasklist},
                         '/task' :       { component: Task },
@@ -171,25 +221,32 @@
                         '/forum/*'   :  { component: Forum },
                         '/profile/*':   {component: Profile},
                         '/profile':     {component: Profile}
+						'/alllists':    {component: AllTaskLists},
+                        '/group-folders': {component: GroupFolders},
+                        '/general-channels': {component: GeneralChannels},
+                        '/private-channels':{component: PrivateChannels}
                     }
                 },
                 mainToolbar : {
                     signin: true,
                     customOperations:[
                         {
-                            caption: 'Profile',
+                         //   caption: '_; Profile; Perfil; Profil',
+                            captionFunc: () => '_; Profile; Perfil; Profil',
                             icon: FaUser,
                             action: (f) => { push('/profile')},
                             condition: () => $session.isActive
                         },
                         {
-                            caption: 'Members',
+                        //    caption: '_; Members; Miembros; Cz³onkowie',
+                            captionFunc: () => '_; Members; Miembros; Cz³onkowie',
                             icon: FaUsersCog,
                             action: (f) => { push(`/members`) },
                             condition: () => $session.authAccessGroup() != 0
                         },
                         {
-                            caption: 'Clipboard',
+                        //    caption: '_; Clipboard; Portapapeles; Schowek',
+                            captionFunc: () => '_; Clipboard; Portapapeles; Schowek',
                             icon: FaPaste,
                             action: (f) => showBasket(),
                             condition: () => $session.isActive
@@ -197,7 +254,8 @@
                     ]
                 },
                 selectionDetails:{
-                    caption: 'Console',
+                    //caption: '_; Console; Consola; Konsola',
+                    captionFunc: () => '_; Console; Consola; Konsola',
                     component: Console
                 },
                 dark:
@@ -237,7 +295,8 @@
                 mainToolbar : {
                     customOperations:[
                         {
-                            caption: 'Leave guest session',
+                        //    caption: '_; Leave guest session; Salir de la sesión de invitado; Opuœæ sesjê goœcia',
+                            captionFunc: () => '_; Leave guest session; Salir de la sesión de invitado; Opuœæ sesjê goœcia',
                             icon: FaSignOutAlt,
                             action: (f) => {
                                 $session.isUnauthorizedGuest = false
@@ -247,7 +306,8 @@
                     ]
                 },
                 selectionDetails:{
-                    caption: 'Console',
+                //    caption: '_; Console; Consola; Konsola',
+                    captionFunc: () => '_; Console; Consola; Konsola',
                     component: Console
                 },
                 dark:

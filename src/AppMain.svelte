@@ -2,9 +2,11 @@
 	import {    isDeviceSmallerThan, 
                 Spinner, 
                 Page,
-                main_sidebar_visible_store
+                navKey, 
+                navGetMode, NAV_MODE_SIDEBAR,
+                i18n
     } from '@humandialog/forms.svelte'
-    import {push } from "svelte-spa-router";
+    import {push, location } from "svelte-spa-router";
     import Navigator from "./navigator.svelte";
     import NavigatorFolders from "./navigator.group.folders.svelte";
     import NavigatorMessages from './navigator.messages.svelte'
@@ -13,6 +15,7 @@
     import {session, Authorized, NotAuthorized} from '@humandialog/auth.svelte'
     import Landing from './landing/landing.svelte'
     import {onMount} from 'svelte'
+	
 
     export let defaultPath = ''
 
@@ -22,17 +25,17 @@
 
     let whatToShow = UNKNOWN;
 
-    $: update($main_sidebar_visible_store, $session)
+    let navComponent;
+    let navOperations = []
+
+    $: update($navKey, $session)
         
     function update(...args)
     {
         if($session.isActive || $session.isUnauthorizedGuest)
         {
-            if(isDeviceSmallerThan("sm"))
-            {
-                whatToShow = NAVIGATOR;
-            }
-            else 
+            const navMode = navGetMode()
+            if(navMode == NAV_MODE_SIDEBAR)
             {
                 whatToShow = REDIRECT;
 
@@ -41,21 +44,24 @@
                 else
                     push(__APP_DEFAULT_PAGE__);
             }
+            else
+            {
+                whatToShow = NAVIGATOR
+                navComponent = getNavigator($navKey)
+                navOperations = getOperations($navKey)
+            }
         }
         else
             whatToShow = UNKNOWN;
     }
 
-    
-
-    
 
     let navigator;
     const addOperation = {
         opver: 1,
         operations: [
             {
-                caption: 'View',
+                caption: '_; View; Ver; Widok',
                 operations: [
                     {
                         icon: FaPlus,
@@ -88,14 +94,14 @@
         switch(name)
         {
         case 'Folders':
-            return addOperation;
+            return [];
 
         case 'Messages':
             return [];
 
         
         default:
-            return addOperation;
+            return [];
         }
     }
 
@@ -105,17 +111,15 @@
 
 <Authorized>
     {#if whatToShow == NAVIGATOR}
-        {#key $main_sidebar_visible_store}
-            <Page   toolbarOperations={ getOperations($main_sidebar_visible_store) }
+        <!-- {#key $main_sidebar_visible_store} -->
+            <Page   toolbarOperations={ navOperations }
                     clearsContext='props sel'
                     self={currentNav} 
                     title={__APP_TITLE__}>
 
-                {@const navi=getNavigator($main_sidebar_visible_store)}
-            
-                <svelte:component this={navi} sidebar={false} bind:this={navigator} />
+                <svelte:component this={navComponent} sidebar={false} bind:this={navigator} />
             </Page>
-        {/key}
+        <!-- {/key} -->
 
 
     {:else}

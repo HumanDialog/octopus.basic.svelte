@@ -16,6 +16,7 @@
     //import { dark_mode_store } from "../doc.elements/doc.js";
     import Header from '../header.svelte'
     import Footer from '../footer.svelte';
+    import {i18n} from '@humandialog/forms.svelte'
 
     import FaLinkedin from 'svelte-icons/fa/FaLinkedin.svelte'
     //import Oreef from '../common/objectreef.logo.black.svelte'
@@ -238,9 +239,9 @@
 
                             <h1 class="font-display text-3xl tracking-tight text-stone-900 darkx:text-white">{book?.Title}</h1>
                             <div class="mt-3 flex flex-row text-xs darkx:text-gray-400">
-                                <p class="flex-1">Date: <span class="font-semibold">{book?.Tags?.date}</span></p>
-                                <p class="flex-1">Author: <span class="font-semibold">{book?.Tags?.author}</span></p>
-                                <p class="flex-1">Minutes: <span class="font-semibold">{book?.Tags?.MTR}</span></p>
+                                <p class="flex-1">_; Date:; Fecha:; Data: <span class="font-semibold">{book?.Tags?.date}</span></p>
+                                <p class="flex-1">_; Author:; Autor:; Autor: <span class="font-semibold">{book?.Tags?.author}</span></p>
+                                <p class="flex-1">_; Minutes:; Actas:; Minuty: <span class="font-semibold">{book?.Tags?.MTR}</span></p>
                               </div>
                             
                             {#if book && book.Title}
@@ -322,7 +323,8 @@
                                 {/if}
 
                                 <div class="flex flex-row justify-between">
-                                    <p class="text-base font-semibold">Written by {book?.Tags?.author}</p>
+                                    <p class="text-base font-semibold">_; Written by; Escrito por; Napiszane przez 
+                                        <span>{book?.Tags?.author}</span></p>
                                     
                                     <section class="flex flex-row gap-4">
                                         <!-- Twitter -->

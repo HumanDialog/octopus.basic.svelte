@@ -12,7 +12,9 @@
                 ListComboProperty,
 				mainContentPageReloader,
                 Modal,
-                onErrorShowAlert} from '@humandialog/forms.svelte'
+                onErrorShowAlert, i18n,
+                breadcrumbAdd, Breadcrumb} from '@humandialog/forms.svelte'
+    import {querystring, location} from 'svelte-spa-router'
     import {FaRegFolder, FaPlus, FaCaretUp, FaCaretDown, FaTrash, FaRegCheckCircle, FaRegCalendar, FaPen, FaArchive, FaEllipsisH, FaCopy, FaCut} from 'svelte-icons/fa'
 
     export let params = {}
@@ -20,8 +22,12 @@
     let user = null;
     let listComponent;
 
+    let prevBreadcrumbPath = ''
+    let breadcrumbPath = ''
+    const title = '_; My Folders; Mis carpetas; Moje foldery'
 
-    $: onParamsChanged($session, $mainContentPageReloader);
+
+    $: onParamsChanged($session, $mainContentPageReloader, $querystring);
 
     async function onParamsChanged(...args)
     {
@@ -30,6 +36,14 @@
             user = null;
             return;
         }
+
+        const params = new URLSearchParams($querystring);
+        if(params.has("path"))
+            prevBreadcrumbPath = params.get("path") ?? ''
+        else
+            prevBreadcrumbPath = ''
+
+        breadcrumbPath = breadcrumbAdd(prevBreadcrumbPath, title, $location)
 
         await fetchData()
     }
@@ -110,15 +124,14 @@
         fab: 'M00',
         operations: [
             {
-                caption: 'View',
+                caption: '_; View; Ver; Widok',
                 operations: [
                     {
-                        icon: FaPlus,
-                        caption: 'New Personal Folder',
-                        //hideToolbarCaption: true,
+                        caption: '_; New folder; Nueva carpeta; Nowy folder',
+                        icon: FaRegFolder,
                         action: (focused) => { listComponent.addRowAfter(null) },
-                        fab: 'M01',
-                        tbr: 'A'
+                        tbr: 'A',
+                        fab: 'M03'
                     }
                 ]
             }
@@ -140,65 +153,61 @@
             tbr: 'C',
             operations: [
                 {
-                    caption: 'Folder',
+                    caption: '_; View; Ver; Widok',
+                    operations: [ 
+                        {
+                            caption: '_; New folder; Nueva carpeta; Nowy folder',
+                            icon: FaRegFolder,
+                            action: (focused) => { listComponent.addRowAfter(folder) },
+                            tbr: 'A',
+                            fab: 'M03'
+                        }
+                    ]
+                },
+                {
+                    caption: '_; Folder; Carpeta; Folder',
                     //tbr: 'B',
                     operations: [
-
                         {
-                            caption: 'Move up',
+                            caption: '_; Edit; Editar; Edytuj',
+                            icon: FaPen,
+                            tbr: 'A',
+                            fab:'M20',
+                            grid:[
+                                {
+                                    caption: '_; Edit Title; Editar título; Edytuj tytuł',
+                                    action: (f) =>  { listComponent.edit(folder, 'Title') },
+                                },
+                                {
+                                    caption: '_; Edit summary; Editar resumen; Edytuj podsumowanie',
+                                    action: (f) =>  { listComponent.edit(folder, 'Summary') }
+                                }
+                            ]
+
+                        },
+                        {
+                            caption: '_; Move up; Deslizar hacia arriba; Przesuń w górę',
                             hideToolbarCaption: true,
                             icon: FaCaretUp,
                             action: (f) => listComponent.moveUp(folder),
-                            fab:'M03',
-                            tbr:'A'
+                            fab:'M05',
+                            tbr:'A',
                         },
                         {
-                            caption: 'Move down',
+                            caption: '_; Move down; Desplácese hacia abajo; Przesuń w dół',
                             hideToolbarCaption: true,
                             icon: FaCaretDown,
                             action: (f) => listComponent.moveDown(folder),
-                            fab:'M02',
-                            tbr:'A'
+                            fab:'M04',
+                            tbr:'A' 
                         },
-                        {
-                            caption: 'Edit name',
-                            icon: FaPen,
-                            fab: 'M20',
-                            tbr: 'A',hideToolbarCaption: true,
-                            action: (f) =>  { listComponent.edit(folder, 'Title') }
-                        },
-                        {
-                            caption: 'Edit summary',
-                            action: (f) =>  { listComponent.edit(folder, 'Summary') }
-                        },
-                    /*    {
-                            icon: FaCopy,   // MdLibraryAdd
-                            caption: 'Copy to Clipboard',
-                            action: (f) => copyFolderToBasket(folder),
-                        //    fab: 'M04',
-                            tbr: 'A'
-                        },
-                        {
-                            icon: FaCut,
-                            caption: 'Move to Clipboard',
-                            action: (f) => cutFolderToBasket(folder),
-                        //    fab: 'M05',
-                            tbr: 'A'
-                        },
-                    */    {
-                            caption: 'Delete',
+                    
+                       {
+                            caption: '_; Delete; Eliminar; Usuń',
                             //icon: FaTrash,
                             action: (f) => askToDelete(folder),
                             //fab:'M30',
                             //tbr:'B'
-                        },
-                        {
-                            icon: FaPlus,
-                            caption: 'New Personal Folder',
-                            hideToolbarCaption: true,
-                            action: (focused) => { listComponent.addRowAfter(folder) },
-                            //fab: 'M10',
-                            tbr: 'A'
                         }
                     ]
                 }
@@ -222,10 +231,30 @@
     }
     */
 
+    function getFolderIcon(folder)
+    {
+        if(folder.icon)
+        {
+            switch(folder.icon)
+            {
+            case 'Folder':
+                return FaRegFolder;
+            case 'Clipboard':
+                return FaRegClipboard;
+            case 'Discussion':
+                return FaRegComments;
+            default:
+                return FaRegFolder
+            }
+        }
+        else
+            return FaRegFolder
+    }
+
 </script>
 
 <svelte:head>
-    <title>My Folders | {__APP_TITLE__}</title>
+    <title>{title} | {__APP_TITLE__}</title>
 </svelte:head>
 
 {#if user}
@@ -233,19 +262,29 @@
     <Page   self={user}
             toolbarOperations={pageOperations}
             clearsContext='props sel'
-            title='My Folders'>
+            title={title}>
             <section class="w-full place-self-center max-w-3xl">
+
+        {#if breadcrumbPath}
+                <Breadcrumb class="hidden sm:block mb-5" path={breadcrumbPath} />
+            {/if}
+
+
+            <p class="hidden sm:block mt-3 ml-3 pb-5 text-lg text-left">
+                {title}
+            </p>
+
         <List   self={user}
                 a='Folders'
                 toolbarOperations={folderOperations}
                 orderAttrib='Order'
                 bind:this={listComponent}>
-            <ListTitle a='Title' hrefFunc={(folder) => `${folder.href}`}/>
+            <ListTitle a='Title' hrefFunc={(folder) => `${folder.href}?path=${breadcrumbPath}`}/>
             <ListSummary a='Summary'/>
             <ListInserter action={addFolder} icon/>
 
             <span slot="left" let:element>
-                <Icon component={FaRegFolder}
+                <Icon component={getFolderIcon(element)}
                     class="h-5 w-5  text-stone-500 dark:text-stone-400 cursor-pointer mt-0.5 ml-2 mr-1 "/>
             </span>
 
@@ -257,8 +296,8 @@
 {/if}
 
 
-<Modal  title="Delete"
-        content="Are you sure you want to delete selected folder?"
+<Modal  title={i18n(['Delete', 'Eliminar', 'Usuń'])}
+        content={i18n(["Are you sure you want to delete selected folder?", "¿Está seguro de que desea eliminar el elemento seleccionado?", "Czy na pewno chcesz usunąć wybrany element?"])}
         icon={FaTrash}
         onOkCallback={deleteFolder}
         bind:this={deleteModal}

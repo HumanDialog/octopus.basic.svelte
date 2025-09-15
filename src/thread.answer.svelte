@@ -1,7 +1,7 @@
 <script>
     import {reef, session} from '@humandialog/auth.svelte'
 	import  {  getNiceStringDateTime, onErrorShowAlert, isDeviceSmallerThan, Modal, Spinner, resizeImage,
-                Editor, activateItem, isActive, clearActiveItem, IcH1, IcH2, IcH3, IcH4
+                Editor, activateItem, isActive, clearActiveItem, IcH1, IcH2, IcH3, IcH4, i18n
             } from '@humandialog/forms.svelte'
 
     import {link} from 'svelte-spa-router'
@@ -115,7 +115,7 @@
                     preAction: contentElement.preventBlur,
                     operations: [
                         {
-                            caption: 'Save',
+                            caption: '_; Save; Guardar; Zapisz',
                             icon: FaSave,
                             action: (f) => { contentElement?.save() },
                             tbr: 'A',
@@ -124,12 +124,12 @@
                     ]
                 },
                 {
-                    caption: 'Insert',
+                    caption: '_; Insert; Insertar; Wstaw',
                     tbr: 'B',
                     preAction: contentElement.preventBlur,
                     operations: [
                         {
-                            caption: 'Image',
+                            caption: '_; Image; Imagen; Obraz',
                             icon: FaImage,
                             action: (f) => contentElement.setImage(),
                             activeFunc: contentElement.isActiveImage,
@@ -137,13 +137,13 @@
                             hideToolbarCaption: true
                         },
                         {
-                            caption: 'Table',
+                            caption: '_; Table; Tabla; Tabela',
                             icon: FaTable,
                             action: (f) => contentElement.setTable(),
                             activeFunc: contentElement.isActiveTable
                         },
                         {
-                            caption: 'Attachement',
+                            caption: '_; Attachement; Anexo; Załącznik',
                             icon: FaPaperclip,
                             action: (f) => runFileAttacher(),
                             tbr: 'A',
@@ -152,12 +152,12 @@
                     ]
                 },
                 {
-                    caption: 'Text',
+                    caption: '_; Text; Texto; Tekst',
                     tbr: 'B',
                     preAction: contentElement.preventBlur,
                     operations: [
                         {
-                            caption: 'Bold',
+                            caption: '_; Bold; Negrita; Pogrubiony',
                             icon: FaBold,
                             action: (f) => contentElement.setBold(),
                             activeFunc: contentElement.isActiveBold,
@@ -165,7 +165,7 @@
                             hideToolbarCaption: true
                         },
                         {
-                            caption: 'Italic',
+                            caption: '_; Italic; Cursiva; Kursywa',
                             icon: FaItalic,
                             action: (f) => contentElement.setItalic(),
                             activeFunc: contentElement.isActiveItalic,
@@ -173,7 +173,7 @@
                             hideToolbarCaption: true
                         },
                         {
-                            caption: 'Underline',
+                            caption: '_; Underline; Subrayar; Podkreślenie',
                             icon: FaUnderline,
                             action: (f) => contentElement.setUnderline(),
                             activeFunc: contentElement.isActiveUnderline,
@@ -181,7 +181,7 @@
                             hideToolbarCaption: true
                         },
                         {
-                            caption: 'Strikethrough',
+                            caption: '_; Strikethrough; Tachado; Przekreślenie',
                             icon: FaStrikethrough,
                             action: (f) => contentElement.setStrikethrough(),
                             activeFunc: contentElement.isActiveStrikethrough,
@@ -189,59 +189,59 @@
                     ]
                 },
                 {
-                    caption: 'Styles',
+                    caption: '_; Styles; Estilos; Style',
                     tbr: 'B',
                     preAction: contentElement.preventBlur,
                     operations: [
                         {
-                            caption: 'Normal',
+                            caption: '_; Normal; Normal; Normalny',
                             icon: FaRemoveFormat,
                             action: (f) => contentElement.setNormal(),
                             activeFunc: contentElement.isActiveNormal,
                         },
                         {
-                            caption: 'Heading 1',
+                            caption: '_; Heading 1; Título 1; Nagłówek 1',
                             icon: IcH1,
                             action: (f) => contentElement.setHeading(1),
                             activeFunc: contentElement.isActiveH1
                         },
                         {
-                            caption: 'Heading 2',
+                            caption: '_; Heading 2; Título 2; Nagłówek 2',
                             icon: IcH2,
                             action: (f) => contentElement.setHeading(2),
                             activeFunc: contentElement.isActiveH2
                         },
                         {
-                            caption: 'Heading 3',
+                            caption: '_; Heading 3; Título 3; Nagłówek 3',
                             icon: IcH3,
                             action: (f) => contentElement.setHeading(3),
                             activeFunc: contentElement.isActiveH3
                         },
                         {
-                            caption: 'Heading 4',
+                            caption: '_; Heading 4; Título 4; Nagłówek 4',
                             icon: IcH4,
                             action: (f) => contentElement.setHeading(4),
                             activeFunc: contentElement.isActiveH4
                         },
                         {
-                            caption: 'Code',
+                            caption: '_; Code; Código; Kod',
                             icon: FaCode,
                             action: (f) => contentElement.setCode(),
                             activeFunc: contentElement.isActiveCode,
                         },
-                        {
+                /*        {
                             caption: 'Comment',
                             icon: FaComment,
                             action: (f) => contentElement.setComment(),
                             activeFunc: contentElement.isActiveComment,
-                        },
+                        },*/
                         {
-                            caption: 'Quote',
+                            caption: '_; Quote; Cita; Cytat',
                             icon: FaQuoteRight,
                             action: (f) => contentElement.setQuote(),
                             activeFunc: contentElement.isActiveQuote,
                         },
-                        {
+                /*        {
                             caption: 'Warning',
                             icon: FaExclamationTriangle,
                             action: (f) => contentElement.setWarning(),
@@ -252,9 +252,9 @@
                             icon: FaInfo,
                             action: (f) => contentElement.setInfo(),
                             activeFunc: contentElement.isActiveInfo,
-                        },
+                        },*/
                         {
-                            caption: 'BulletList',
+                            caption: '_; BulletList; Lista con viñetas; Lista punktowana',
                             icon: FaListUl,
                             action: (f) => contentElement.setBulletList(),
                             activeFunc: contentElement.isActiveBulletList,
@@ -461,9 +461,15 @@
             <input hidden type="file" id="imageFile" accept="image/*" bind:this={imgInput} on:change={onImageSelected}/>
             <input hidden type="file" id="attachementFile" accept="*/*" bind:this={attInput} on:change={onAttachementSelected}/>
 
-            <Modal title='Uploading...' bind:open={pendingUploading} mode={3} icon={FaCloudUploadAlt}>
+            <Modal  title={i18n({en: 'Uploading...', es: 'Cargando...', pl: 'Przesyłanie...'})} 
+                     bind:open={pendingUploading} mode={3} icon={FaCloudUploadAlt}>
                 <Spinner delay={0}/> 
-                <span class="ml-3">Your file is uploading to the server</span>
+                <span class="ml-3">
+                    _;
+                    Your file is uploading to the server;
+                    Tu archivo se está cargando en el servidor;
+                    Twój plik jest przesyłany na serwer
+                </span>
             </Modal>
         {/if}
 {/if}

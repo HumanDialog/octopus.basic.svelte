@@ -3,6 +3,7 @@
     import AppIcon from '../appicon.svelte'
     import { link } from 'svelte-spa-router';
     import {Authorized, NotAuthorized, signInHRef, signOutHRef, signUpHRef } from '@humandialog/auth.svelte'
+    import {i18n} from '@humandialog/forms.svelte'
 
     export let main = false;
     export let light = false;
@@ -38,7 +39,12 @@
                 <AppIcon class="block w-6 h-6 sm:w-10 sm:h-10"/>
                 <span class="ml-2 sm:ml-4 sm:mt-1">
                     <span class="font-semibold text-base sm:text-2xl {brand_color}">Octopus</span>
-                    <span class=" text-xs sm:text-xl font-normal {hero_color}"> | A minimalist workspace for tasks and notes </span>
+                    <span class=" text-xs sm:text-xl font-normal {hero_color}"> | <span>
+                        _;
+                        A minimalist workspace for tasks and notes;
+                        Un espacio de trabajo minimalista para tareas y notas;
+                        Minimalistyczna aplikacja do zadań i notatek </span>
+                    </span>
                 </span>
             </div>
       </a>
@@ -49,13 +55,13 @@
                         <li><a class="block rounded md:bg-transparent p-0 {text_color}" use:link href='/blog'>Blog</a></li>
                     </NotAuthorized>
                     <NotAuthorized>
-                        <li><a class="block rounded md:bg-transparent p-0 {text_color}" href='https://github.com/HumanDialog/octopus.basic.reef'>Source code</a></li>
+                        <li><a class="block rounded md:bg-transparent p-0 {text_color}" href='https://github.com/HumanDialog/octopus.basic.reef'>_; Source code; Código fuente; Kod źródłowy</a></li>
                     </NotAuthorized>
                     <NotAuthorized>
-                        <li><a class="block rounded md:bg-transparent p-0 {text_color}" use:link href={$signUpHRef}>Get started</a></li>
+                        <li><a class="block rounded md:bg-transparent p-0 {text_color}" use:link href={$signUpHRef}>_; Get started; Empieza; Rozpocznij</a></li>
                     </NotAuthorized>
                     <NotAuthorized>
-                        <li><a class="block  rounded md:bg-transparent p-0 {text_color}" use:link href={$signInHRef}>Sign In</a></li>
+                        <li><a class="block  rounded md:bg-transparent p-0 {text_color}" use:link href={$signInHRef}>_; Sign In; Iniciar sesión; Zaloguj</a></li>
                     </NotAuthorized>
                     
                 {:else}

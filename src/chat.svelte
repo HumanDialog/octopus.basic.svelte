@@ -7,9 +7,13 @@
             reloadVisibleTags,
 			getNiceStringDate,
             showFloatingToolbar,
-            UI
+            UI,
+            registerKicksObserver,
+            unregisterKicksObserver,
+            forceKicksChecking,
+            i18n, ext
             } from '@humandialog/forms.svelte'
-	import { afterUpdate, tick } from 'svelte';
+	import { afterUpdate, tick, onMount } from 'svelte';
     import {location, link, querystring} from 'svelte-spa-router'
 
     import {FaPaste, FaArrowCircleRight, FaTimes, FaRegFile, FaRegCalendar, FaPaperPlane, FaRegStar, FaStar} from 'svelte-icons/fa/'
@@ -18,11 +22,15 @@
     let channelRef = ''
     let channel = null;
     let allTags = '';
+    let channelRefreshLabel = ''
 
     let pendingUploading = false;
     let isReadOnly = false;
     let unreadMessagesNo = 0
     let selectedMessageId = 0
+
+    const heuristicIntevals = [5,10,20,40]
+    let heuristicIntervalIdx = -1
 
 
     $: onParamsChanged($location, $querystring)
@@ -36,6 +44,8 @@
 
         const channelId = parseInt(segments[segments.length-1])
         channelRef = `./MessageChannel/${channelId}`
+
+        channelRefreshLabel = `MsgC_${channelId}`
 
         let scrollToPost = 0
         selectedMessageId = 0
@@ -76,6 +86,35 @@
 
        if(unreadMessagesNo > 0)
             setTimeout(async () => await markRead(), 2000)
+    }
+
+    onMount(() => {
+        const observerId = registerKicksObserver(channelRefreshLabel, 60, onRemoteChanged)
+        return () => {
+            unregisterKicksObserver(observerId)
+        }
+    })
+
+    async function onRemoteChanged(labels)
+    {
+        //console.log('onRemoteChanged')
+        let restoreSelection = isDuringEditing()
+        if(restoreSelection)
+            storeEditableSelection()
+
+        await reloadData();
+        await tick();   // rerender
+        scrollDown();
+
+        // doesn't work. don't know why
+        if(restoreSelection)
+        {
+            restoreEditableSelection()
+        }
+
+        await markRead()
+
+        startHeuristicRefreshing()
     }
 
     async function scrollWhereNeeded(scrollToPost)
@@ -159,7 +198,7 @@
         channel = res.MessageChannel
 
         if(channel.GetTitle)
-            channel.Title = channel.GetTitle
+            channel.Title = ext(channel.GetTitle)
 
         unreadMessagesNo = channel.GetUnreadMessagesNo
 
@@ -182,7 +221,7 @@
         if(channel.IsSubscribed > 0)
         {
             toggleSubscribe = {
-                caption: 'Unsubscribe',
+                caption: '_; Unfollow; Dejar de seguir; Przestań obserwować',
                 icon: FaStar,
                 action: (f) => unsubscribeChannel(),
                 tbr: 'C'
@@ -191,7 +230,7 @@
         else
         {
             toggleSubscribe = {
-                caption: 'Subscribe',
+                caption: '_; Follow; Seguir; Obserwuj',
                 icon: FaRegStar,
                 action: (f) => subscribeChannel(),
                 tbr: 'C'
@@ -203,7 +242,7 @@
             fab: 'T01',
             operations: [
                 {
-                    caption: 'Channel',
+                    caption: '_; Channel; Canal; Kanał',
                     operations: [
                         ... channel.Status == 1 ? [toggleSubscribe] : []
                     ]
@@ -269,6 +308,9 @@
             await reloadData();
             await tick();   // rerender
             scrollDown();
+            editableElement?.focus()
+
+            startHeuristicRefreshing();
         }
     }
 
@@ -285,6 +327,29 @@
             e.stopPropagation()
             e.preventDefault()
         }
+    }
+
+    let editableElement;
+    async function onPaste(e)
+    {
+        e.preventDefault();
+        
+        const sel = window.getSelection()
+        //const selNo = sel?.focusOffset
+        //const selNode = sel?.focusNode
+
+        //console.log('sel', selNo, selNode)
+        
+        const txt = e.clipboardData.getData('text/plain')
+        
+        //const left = newMessageContent.substring(0, selNo)
+        //const right = newMessageContent.substring(selNo+1)
+        //newMessageContent = left + txt + right
+        newMessageContent = txt
+        
+        await tick()
+
+        sel?.setPosition(editableElement.childNodes[0], txt.length)
     }
 
     function onSubmitClick(e)
@@ -392,6 +457,68 @@
     }
 
 
+    function isDuringEditing()
+    {
+        if(document.activeElement == editableElement)
+            return true;
+        else
+            return false;
+    }
+
+    let fNode;
+    let aNode;
+    let fOffset;
+    let aOffset;
+    function storeEditableSelection()
+    {
+        const sel = window.getSelection()
+        fNode = sel?.focusNode
+        fOffset = sel?.focusOffset
+        aNode = sel?.anchorNode
+        aOffset = sel?.anchorOffset
+    }
+
+    function restoreEditableSelection()
+    {
+        if(!fNode)
+            return;
+
+        editableElement.focus()
+        const sel = window.getSelection()
+        let range = document.createRange();
+        range.setStart(aNode, aOffset)
+        range.setEnd(fNode, fOffset)
+        sel?.removeAllRanges()
+        sel?.addRange(range)
+
+        fNode = null
+        aNode = null
+    }
+
+    let heuristicTimerId = 0
+    function startHeuristicRefreshing()
+    {
+        heuristicIntervalIdx = 0;
+
+        if(heuristicTimerId > 0)
+            clearTimeout(heuristicTimerId)
+
+        heuristicTimerId = setTimeout(onHeuristicRefresh, heuristicIntevals[heuristicIntervalIdx]*1000)
+    }
+
+    function onHeuristicRefresh()
+    {
+        forceKicksChecking()
+
+        heuristicIntervalIdx++;
+        if(heuristicIntervalIdx >= heuristicIntevals.length)
+        {
+            heuristicIntervalIdx = -1
+            heuristicTimerId = 0
+        }
+        else
+            heuristicTimerId = setTimeout(onHeuristicRefresh, heuristicIntevals[heuristicIntervalIdx]*1000)
+    }
 
 </script>
 
@@ -449,7 +576,7 @@
                                         before:border before:dark:border-red-800 before:border-red-200
                                         after:border after:dark:border-red-800 after:border-red-200
                                         text-red-400 dark:text-red-600">
-                                        Unread messages
+                                        _; Unread messages; Mensajes no leídos; Nieprzeczytane wiadomości
                             </p>
                         {/if}
                         <!--    border-bottom: 1px solid #000; -->
@@ -507,7 +634,7 @@
                     <!---/section-->
                 {/each}
             {:else}
-                <p class="">No messages here</p>
+                <p class="">_; No messages here; No hay mensajes aquí; Brak wiadomości</p>
             {/if}
             <!--p class="h-20"></p-->
 
@@ -523,9 +650,11 @@
                             overflow-x-clip text-wrap break-words"
                             bind:innerHTML={newMessageContent}
                             contenteditable="true"
+                            bind:this={editableElement}
 
                             placeholder="Type new message"
-                            on:keydown={onKeyDown}>
+                            on:keydown={onKeyDown}
+                            on:paste={onPaste}>
                     </p> <!--maxlength={196-additionalBytesSize(newMessageContent)} -->
 
 
@@ -561,7 +690,7 @@
                             flex items-center rounded"
                             on:click={showBasket}>
                         <div class="w-5 h-5 mr-1"><FaPaste/></div>
-                        <span class="ml-2">Paste...</span>
+                        <span class="ml-2">_; Paste...; Pegar...; Wklej...</span>
                     </button>
 
                     <p class="flex-none ml-auto py-2.5 mr-1 text-xs m-0">
@@ -577,7 +706,7 @@
                             flex items-center rounded"
                             on:click={onSubmitClick}>
                         <div class="w-5 h-5 mr-1"><FaPaperPlane/></div>
-                        <span class="ml-2">Send</span>
+                        <span class="ml-2">_; Send; Enviar; Wyślij</span>
 
                     </button>
 

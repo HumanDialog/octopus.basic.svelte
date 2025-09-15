@@ -2,7 +2,7 @@
 	import { reef } from "@humandialog/auth.svelte";
     import {
         onErrorShowAlert, Icon,
-        List, ListTitle, ListSummary, Spinner
+        List, ListTitle, ListSummary, Spinner, i18n
     }   from '@humandialog/forms.svelte'
     import {FaRegFolder, FaRegFile, FaRegCalendarCheck, FaRegCalendar} from 'svelte-icons/fa'
 	import { afterUpdate, onMount } from "svelte";
@@ -182,7 +182,7 @@
 
             {#if basketEntriesNo==0}
                 <div class="h-full flex items-center justify-center">
-                    <p>Clipboard is empty</p>
+                    <p>_; Clipboard is empty; El portapapeles está vacío; Schowek jest pusty</p>
                 </div>
             {/if}
 
@@ -249,7 +249,7 @@
                                 disabled={!basketItem}
                                 on:click={() => editBasket()}>
 
-                    Edit
+                    _; Edit; Editar; Edytuj
                 </button>
 
                 <button class=" py-2.5 px-5
@@ -264,7 +264,7 @@
                                 disabled={!basketEntriesNo}
                                 on:click={() => attachTo()}>
 
-                    Attach
+                    _; Attach; Adjuntar; Załącz
                 </button>
 
                 <button class=" py-2.5 px-5
@@ -279,7 +279,7 @@
                                 disabled={!basketEntriesNo}
                                 on:click={() => attachToAndClear()}>
 
-                    Attach and clear
+                    _; Attach and clear; Adjuntar y borrar; Dołącz i wyczyść
                 </button>
             </div>
 

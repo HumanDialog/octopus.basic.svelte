@@ -8,8 +8,8 @@
                 Modal,
                 reloadWholeApp,
                 Input,
-                onErrorShowAlert, UI} from '@humandialog/forms.svelte'
-    import {FaRegFolder, FaList, FaRegCheckCircle, FaCaretUp, FaCaretDown, FaTrash, FaArchive, FaUsers, FaPlus, FaRegStar, FaStar, FaPaste} from 'svelte-icons/fa'
+                onErrorShowAlert, UI, i18n, ext} from '@humandialog/forms.svelte'
+    import {FaRegFolder, FaList, FaRegCheckCircle, FaCaretUp, FaCaretDown, FaTrash, FaArchive, FaUsers, FaPlus, FaRegStar, FaStar, FaPaste, FaRegClipboard, FaRegComments} from 'svelte-icons/fa'
     import {location, push} from 'svelte-spa-router'
     import {reef, session} from '@humandialog/auth.svelte'
 	import { onMount, tick } from 'svelte';
@@ -71,18 +71,18 @@
                             {
                                 Id: 11,
                                 Association: 'BasketFolder',
-                                Expressions:['Id','$ref', 'Title', 'href', 'Summary'],
+                                Expressions:['Id','$ref', 'Title', 'href', 'Summary', 'icon'],
                             },
                             {
                                 Id: 12,
                                 Association: 'PinnedFolders',
-                                Expressions:['Id','$ref', 'Title'],
+                                Expressions:['Id','$ref', 'Title', 'href'],
                                 SubTree:[
                                     {
                                         Id: 121,
-                                        Association: 'Folders/Folder',
+                                        Association: 'Folders',
                                         Sort: 'Order',
-                                        Expressions:['Id','$ref', 'Title', 'href', 'Summary', 'Order'],
+                                        Expressions:['Id','$ref', 'Title', 'href', 'Summary', 'Order', 'icon'],
                                     }
                                 ]
                             }
@@ -94,7 +94,7 @@
                 {
                     user = res.User
                     basket = user.BasketFolder
-                    pinnedFolders = user.PinnedFolders['Folders/Folder']
+                    pinnedFolders = user.PinnedFolders.Folders
 
                     navPinnedFolders?.reload(pinnedFolders)
                     cache.set('navFoldersUser', user)
@@ -120,7 +120,7 @@
 
     async function fetchGroupFolders()
     {
-        let res = await reef.get("/group/Folders?sort=Order&fields=Id,Title,Summary,Order,href,$type,$ref", onErrorShowAlert);
+        let res = await reef.get("/group/Folders?sort=Order&fields=Id,Title,Summary,Order,href,$type,$ref,icon", onErrorShowAlert);
         if(res != null)
             groupFolders = res.Folder;
         else
@@ -160,7 +160,8 @@
         if(linkPath.startsWith('#'))
             linkPath = linkPath.substring(1)
 
-        if(currentPath.startsWith(linkPath))
+        //if(currentPath.startsWith(linkPath))
+        if(currentPath == linkPath)
             return true;
         else
             return false;
@@ -192,7 +193,7 @@
                 action: (f) => startEditing(domNode)
             },
             {
-                caption: 'Edit summary',
+                caption: '_; Edit summary; Editar resumen; Edytuj podsumowanie',
                 action: (f) => navItem.editSummary()
             },
             {
@@ -200,12 +201,12 @@
                 action: (f) => navGroupFolders.moveTop(dataItem)
             },
             {
-                caption: 'Move up',
+                caption: '_; Move up; Deslizar hacia arriba; Przesuń w górę',
                 icon: FaCaretUp,
                 action: (f) => navGroupFolders.moveUp(dataItem)
             },
             {
-                caption: 'Move down',
+                caption: '_; Move down; Desplácese hacia abajo; Przesuń w dół',
                 icon: FaCaretDown,
                 action: (f) => navGroupFolders.moveDown(dataItem)
 
@@ -214,11 +215,11 @@
                 separator: true
             },
             {
-                caption: 'Archive',
+                caption: '_; Archive; Archivar; Zarchiwizuj',
                 action: (f) => askToArchive(dataItem)
             },
             {
-                caption: 'Delete',
+                caption: '_; Delete; Eliminar; Usuń',
                 action: (f) => askToDelete(dataItem)
             }
         ]
@@ -229,17 +230,17 @@
     {
         return [
             {
-                caption: 'Unpin',
+                caption: '_; Unpin; Desanclar; Odepnij',
                 icon: FaRegStar,
                 action: (f) => unpinFolder(dataItem)
             },
             {
-                caption: 'Move up',
+                caption: '_; Move up; Desplazar hacia arriba; Przesuń w górę',
                 icon: FaCaretUp,
                 action: (f) => navPinnedFolders.moveUp(dataItem)
             },
             {
-                caption: 'Move down',
+                caption: '_; Move down; Desplácese hacia abajo; Przesuń w dół',
                 icon: FaCaretDown,
                 action: (f) => navPinnedFolders.moveDown(dataItem)
 
@@ -248,18 +249,18 @@
                 separator: true
             },
             {
-                caption: 'Rename',
+                caption: '_; Rename; Editar nombre; Edytuj nazwę',
                 action: (f) => startEditing(domNode)
             },
             {
-                caption: 'Edit summary',
+                caption: '_; Edit summary; Editar resumen; Edytuj podsumowanie',
                 action: (f) => navItem.editSummary()
             },
             {
                 separator: true
             },
             {
-                caption: 'Delete',
+                caption: '_; Delete; Eliminar; Usuń',
                 action: (f) => askToDelete(dataItem, 'PinnedFolder')
             }
         ]
@@ -269,12 +270,12 @@
     {
         return [
             {
-                caption: 'Move up',
+                caption: '_; Move up; Desplazar hacia arriba; Przesuń w górę',
                 icon: FaCaretUp,
                 action: (f) => navGroupFolders.moveUp(dataItem)
             },
             {
-                caption: 'Move down',
+                caption: '_; Move down; Desplácese hacia abajo; Przesuń w dół',
                 icon: FaCaretDown,
                 action: (f) => navGroupFolders.moveDown(dataItem)
 
@@ -283,18 +284,18 @@
                 separator: true
             },
             {
-                caption: 'Rename',
+                caption: '_; Rename; Editar nombre; Edytuj nazwę',
                 action: (f) => startEditing(domNode)
             },
             {
-                caption: 'Edit summary',
+                caption: '_; Edit summary; Editar resumen; Edytuj podsumowanie',
                 action: (f) => navItem.editSummary()
             },
             {
                 separator: true
             },
             {
-                caption: 'Delete',
+                caption: '_; Delete; Eliminar; Usuń',
                 action: (f) => askToDelete(dataItem, 'GroupFolder')
             }
         ]
@@ -309,7 +310,7 @@
     {
         return [
             {
-                caption: 'Clear Clipboard',
+                caption: '_; Clear Clipboard; Borrar portapapeles; Wyczyść schowek',
                 icon: FaTrash,
                 action: (f) => clearFolder(dataItem)
             }];;
@@ -378,6 +379,26 @@
         return (res != null);
     }
 
+    function getFolderIcon(folder)
+    {
+        if(folder.icon)
+        {
+            switch(folder.icon)
+            {
+            case 'Folder':
+                return FaRegFolder;
+            case 'Clipboard':
+                return FaRegClipboard;
+            case 'Discussion':
+                return FaRegComments;
+            default:
+                return FaRegFolder
+            }
+        }
+        else
+            return FaRegFolder
+    }
+
 </script>
 
 {#key currentPath}
@@ -385,7 +406,8 @@
     {#if groupFolders && groupFolders.length > 0}
         {#if $session.isActive}
             {#if pinnedFolders && pinnedFolders.length > 0}
-                <SidebarGroup >
+                <SidebarGroup title={i18n({en: 'Pinned', es: 'Sujetado', pl: 'Przypięte'})}
+                        moreHref={user.PinnedFolders.href}>
 
                     <SidebarList    objects={pinnedFolders}
                                     orderAttrib='Order'
@@ -396,57 +418,44 @@
                                             icon={FaRegStar}
                                             bind:this={navPinnedItems[idx]}
                                             active={isRoutingTo(href, currentPath)}
-                                            operations={(node) => getPinnedFolderOperations(node, item, navPinnedItems[idx])}
-                                            selectable={item}
-                                            summary={{
-                                                editable: (text) => {changeSummary(item, text)},
-                                                content: item.Summary}}
-                                            editable={(text) => {changeName(item, text)}}>
-                                {item.Title}
+                                            summary={ext(item.Summary)}>
+                                {ext(item.Title)}
                             </SidebarItem>
                         </svelte:fragment>
                     </SidebarList>
                 </SidebarGroup>
             {/if}
 
-            <SidebarGroup border>
+            <SidebarGroup title={i18n({en: 'Personal', es: 'Personales', pl: 'Osobiste'})}>
                 <SidebarItem   href="/myfolders"
                                 icon={FaRegFolder}
                                 active={isRoutingTo("/myfolders", currentPath)}
-                                operations={(node) => getMyFoldersOperations(node, user)}
-                                summary="Personal folders"
-                                selectable={user}>
-                    My Folders
+                                summary={i18n(["Personal folders", "Carpetas personales", "Foldery osobiste"])}>
+                    _; My Folders; Mis carpetas; Moje Foldery
                 </SidebarItem>
             </SidebarGroup>
         {/if}
 
-        <SidebarGroup border>
+        <SidebarGroup  title={i18n({en: 'Common', es: 'Comunes', pl: 'Wspólne'})}
+                        moreHref="/group-folders">
 
             <SidebarList    objects={groupFolders}
                             orderAttrib='Order'
-                            inserter={addFolder}
-                            inserterPlaceholder='New folder'
                             bind:this={navGroupFolders}>
                 <svelte:fragment let:item let:idx>
                     {@const href = item.href}
                     <SidebarItem   {href}
-                                    icon={FaRegFolder}
+                                    icon={getFolderIcon(item)}
                                     bind:this={navGroupItems[idx]}
                                     active={isRoutingTo(href, currentPath)}
-                                    operations={(node) => getGroupFolderOperations(node, item, navGroupItems[idx])}
-                                    selectable={item}
-                                    summary={{
-                                        editable: (text) => {changeSummary(item, text)},
-                                        content: item.Summary}}
-                                    editable={(text) => {changeName(item, text)}}>
-                        {item.Title}
+                                    summary={ext(item.Summary)}>
+                        {ext(item.Title)}
                     </SidebarItem>
                 </svelte:fragment>
             </SidebarList>
         </SidebarGroup>
 
-        <SidebarGroup border>
+        <!--SidebarGroup border>
             {@const href = `/folder/${basket.Id}`}
             <SidebarItem   {href}
                             icon={FaPaste}
@@ -454,14 +463,14 @@
                             operations={(node) => getBasketOperations(node, basket)}
                             summary="List of selected items for quick operations"
                             selectable={basket}>
-                My Clipboard
+                _; My Clipboard; Mi portapapeles; Mój Schowek
             </SidebarItem>
-        </SidebarGroup>
+        </SidebarGroup-->
 
 
-        {:else}
-            <Spinner delay={3000}/>
-        {/if}
+    {:else}
+        <Spinner delay={3000}/>
+    {/if}
 
 {:else} <!-- !sidebar -->
 
@@ -469,7 +478,8 @@
 
         {#if $session.isActive}
             {#if pinnedFolders && pinnedFolders.length > 0}
-                <SidebarGroup >
+                <SidebarGroup   title={i18n({en: 'Pinned', es: 'Sujetado', pl: 'Przypięte'})}
+                                moreHref={user.PinnedFolders.href}>
                     <SidebarList    objects={pinnedFolders}
                                     orderAttrib='Order'
                                     bind:this={navPinnedFolders}>
@@ -478,13 +488,9 @@
                             <SidebarItem   {href}
                                             icon={FaRegStar}
                                             bind:this={navPinnedItems[idx]}
-                                            operations={(node) => getPinnedFolderOperations(node, item, navPinnedItems[idx])}
                                             {item}
-                                            summary={{
-                                                editable: (text) => {changeSummary(item, text)},
-                                                content: item.Summary}}
-                                            editable={(text) => {changeName(item, text)}}>
-                                {item.Title}
+                                            summary={ext(item.Summary)}>
+                                {ext(item.Title)}
                             </SidebarItem>
                         </svelte:fragment>
                     </SidebarList>
@@ -493,18 +499,18 @@
 
 
 
-            <SidebarGroup border>
+            <SidebarGroup title={i18n({en: 'Personal', es: 'Personales', pl: 'Osobiste'})}>
                 <SidebarItem    href="/myfolders"
                                 icon={FaRegFolder}
-                                operations={(node) => getMyFoldersOperations(node, user)}
-                                summary="Personal folders"
+                                summary={i18n(["Personal folders", "Carpetas personales", "Foldery osobiste"])}
                                 item={user}>
-                    My Folders
+                    _; My Folders; Mis carpetas; Moje Foldery
                 </SidebarItem>
             </SidebarGroup>
         {/if}
 
-        <SidebarGroup border>
+        <SidebarGroup title={i18n({en: 'Common', es: 'Comunes', pl: 'Wspólne'})}
+                        moreHref="/group-folders">
             <SidebarList    objects={groupFolders}
                             orderAttrib='Order'
                             bind:this={navGroupFolders}>
@@ -513,13 +519,9 @@
                     <SidebarItem   {href}
                                     icon={FaRegFolder}
                                     bind:this={navGroupItems[idx]}
-                                    operations={(node) => getGroupFolderOperations(node, item, navGroupItems[idx])}
                                     {item}
-                                    summary={{
-                                        editable: (text) => {changeSummary(item, text)},
-                                        content: item.Summary}}
-                                    editable={(text) => {changeName(item, text)}}>
-                        {item.Title}
+                                    summary={ext(item.Summary)}>
+                        {ext(item.Title)}
                     </SidebarItem>
                 </svelte:fragment>
             </SidebarList>
@@ -544,8 +546,8 @@
 {/if}
 {/key}
 
-<Modal  title="Delete"
-        content="Are you sure you want to delete selected folder?"
+<Modal  title={i18n(['Delete', 'Eliminar', 'Usuń'])}
+        content={i18n(["Are you sure you want to delete selected folder?", "¿Está seguro de que desea eliminar la carpeta seleccionada?", "Czy na pewno chcesz usunąć wybrany folder?"])}
         icon={FaTrash}
         onOkCallback={deleteFolder}
         bind:this={deleteModal}

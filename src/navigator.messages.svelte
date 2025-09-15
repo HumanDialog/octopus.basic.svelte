@@ -11,7 +11,9 @@
                 onErrorShowAlert,
                 randomString, UI,
                 Icon,
-            showMenu} from '@humandialog/forms.svelte'
+            showMenu,
+            registerKicksObserver,
+			unregisterKicksObserver, i18n, ext} from '@humandialog/forms.svelte'
     import {FaHashtag, FaRegCheckCircle, FaCaretUp, FaCaretDown, FaTrash, FaRegComment, FaUsers, FaPlus} from 'svelte-icons/fa'
     import {location, push} from 'svelte-spa-router'
     import {reef, session} from '@humandialog/auth.svelte'
@@ -33,24 +35,33 @@
 
     const navRefresher = {
         refresh: () => {
-                initNavigator();
+                refreshNavigator();
             }
     }
 
+    let kickObserverId = 0
     onMount( () =>
     {
         initNavigator();
         UI.navigator = navRefresher
         
         return () => {
+            if(kickObserverId > 0)
+                unregisterKicksObserver(kickObserverId)
             if(UI.navigator == navRefresher)
                 UI.navigator = null
         }      
     })
 
+
     
     async function initNavigator()
     {
+        if(kickObserverId > 0)
+            unregisterKicksObserver(kickObserverId)
+        
+        readyPartsNo = 0
+
         const generalKey = `navigatorGeneralChannels`
         const generalValue = cache.get(generalKey)
         if(generalValue)
@@ -63,6 +74,7 @@
         {
             navGeneralLists?.reload(generalChannels)
             cache.set(generalKey, generalChannels);
+            registerKicksObserverWhenReady()
         })
 
 
@@ -78,13 +90,48 @@
         {
             navDirectLists?.reload(directChannels)
             cache.set(directKey, directChannels);
+            registerKicksObserverWhenReady()
         })
 
     }
 
+    let readyPartsNo = 0
+    function registerKicksObserverWhenReady()
+    {
+        readyPartsNo++;
+        if(readyPartsNo < 2)
+            return
+        
+        let labels = []
+        generalChannels.filter(ch => !!ch.IsSubscribed).forEach( ch => labels.push(`MsgC_${ch.Id}`)) 
+        directChannels.forEach(ch => labels.push(`MsgC_${ch.MessageChannelId}`))
+        
+        if(labels.length > 0)
+            kickObserverId = registerKicksObserver(labels, 60, labels => refreshNavigator())
+    }
+
+    function refreshNavigator()
+    {
+        const generalKey = `navigatorGeneralChannels`
+        fetchGeneralChannels().then(() => 
+        {
+            navGeneralLists?.reload(generalChannels)
+            cache.set(generalKey, generalChannels);
+        })
+
+
+        const directKey = `navigatorDirectChannels`
+        
+        fetchDirectChannels().then(() => 
+        {
+            navDirectLists?.reload(directChannels)
+            cache.set(directKey, directChannels);
+        })
+    }
+
     function fetchGeneralChannels()
     {
-        return reef.get("/group/MessageChannels?sort=Order&fields=$ref,Id,Title,Order,href,$type,GetUnreadMessagesNo", onErrorShowAlert).then((res) =>
+        return reef.get("/group/MessageChannels?sort=Order&fields=$ref,Id,Title,Summary,Order,href,$type,GetUnreadMessagesNo,IsSubscribed", onErrorShowAlert).then((res) =>
         {
             if(res != null)
                 generalChannels = res.MessageChannel;
@@ -95,7 +142,7 @@
 
     function fetchDirectChannels()
     {
-        return reef.get("/user/MessageChannels?sort=Order&fields=$ref,Id,Title,Order,href,$type,UnreadMessagesNo", onErrorShowAlert).then((res) =>
+        return reef.get("/user/MessageChannels?sort=Order&fields=$ref,Id,Title,Summary,Order,href,$type,UnreadMessagesNo,MessageChannelId", onErrorShowAlert).then((res) =>
         {
             if(res != null)
                 directChannels = res.MessageChannelUser;
@@ -220,20 +267,20 @@
                 separator: true
             },
         */    {
-                caption: 'Rename',
+                caption: '_; Rename; Editar nombre; Edytuj nazwę',
                 action: (f) => startEditing(domNode)
             },
             {
-                caption: 'Edit summary',
+                caption: '_; Edit summary; Editar resumen; Edytuj podsumowanie',
                 action: (f) => navItem.editSummary()
             },
             {
-                caption: 'Move up',
+                caption: '_; Move up; Desplazar hacia arriba; Przesuń w górę',
                 icon: FaCaretUp,
                 action: (f) => navGeneralLists.moveUp(dataItem)
             },
             {
-                caption: 'Move down',
+                caption: '_; Move down; Desplácese hacia abajo; Przesuń w dół',
                 icon: FaCaretDown,
                 action: (f) => navGeneralLists.moveDown(dataItem)
 
@@ -242,7 +289,7 @@
                 separator: true
             },
             {
-                caption: 'Delete',
+                caption: '_; Delete; Eliminar; Usuń',
                 action: (f) => askToDelete(dataItem)
             }
         ]
@@ -261,16 +308,16 @@
                 separator: true
             },
           */  {
-                caption: 'Edit summary',
+                caption: '_; Edit summary; Editar resumen; Edytuj podsumowanie',
                 action: (f) => navItem.editSummary()
             },
             {
-                caption: 'Move up',
+                caption: '_; Move up; Desplazar hacia arriba; Przesuń w górę',
                 icon: FaCaretUp,
                 action: (f) => navDirectLists.moveUp(dataItem)
             },
             {
-                caption: 'Move down',
+                caption: '_; Move down; Desplácese hacia abajo; Przesuń w dół',
                 icon: FaCaretDown,
                 action: (f) => navDirectLists.moveDown(dataItem)
 
@@ -279,7 +326,7 @@
                 separator: true
             },
             {
-                caption: 'Delete',
+                caption: '_; Delete; Eliminar; Usuń',
                 action: (f) => askToDelete(dataItem)
             }
         ]
@@ -341,12 +388,11 @@
     {@const hasContent = (generalChannels ) || (directChannels )}
     {#if hasContent}
         
-            <SidebarGroup >
+            <SidebarGroup title={i18n({en: 'Common', es: 'Comunes', pl: 'Wspólne'})}
+                        moreHref="/general-channels">
             
                 <SidebarList    objects={generalChannels} 
                                 orderAttrib='Order'
-                                inserter={addChannel} 
-                                inserterPlaceholder='New channel'
                                 bind:this={navGeneralLists}>
                     <svelte:fragment let:item let:idx>
                         {@const href = item.href}
@@ -354,22 +400,21 @@
                                         icon={FaHashtag}
                                         bind:this={navGeneralItems[idx]}
                                         active={isRoutingTo(href, currentPath)}
-                                        operations={(node) => getChannelOperations(node, item, navGeneralItems[idx])}
-                                        selectable={item}
-                                        summary={{
-                                            editable: (text) => {changeSummary(item, text)},
-                                            content: item.Summary}}
-                                        editable={(text) => {changeName(item, text)}}>
+                                        summary={ext(item.Summary)}>
                             <span class="relative">
                                  {#if item.GetUnreadMessagesNo}
                                     <div class="absolute 
                                             inline-flex items-center justify-center 
                                             w-5 h-5 
-                                            text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -top-1 -end-5 dark:border-gray-900">
-                                        {item.GetUnreadMessagesNo}
+                                            text-[10px] font-bold text-white bg-red-500 border-2 border-white rounded-full -top-1 -end-5 dark:border-gray-900">
+                                        {#if item.UnreadMessagesNo <= 9}
+                                            {item.UnreadMessagesNo}
+                                        {:else}
+                                            9+
+                                        {/if}
                                     </div>
                                 {/if}
-                                {item.Title}
+                                {ext(item.Title)}
                             </span>
                         </SidebarItem>
                     </svelte:fragment>
@@ -378,7 +423,8 @@
         
 
         
-            <SidebarGroup border>
+            <SidebarGroup title={i18n({en: 'Private', es: 'Privados', pl: 'Prywatne'})}
+                        moreHref="/private-channels">
             
                 <SidebarList    objects={directChannels} 
                                 orderAttrib='Order'
@@ -389,21 +435,19 @@
                                         icon={FaRegComment}
                                         bind:this={navDirectItems[idx]}
                                         active={isRoutingTo(href, currentPath)}
-                                        operations={(node) => getDirectChannelOperations(node, item, navDirectItems[idx])}
-                                        selectable={item}
-                                        summary={{
-                                            editable: (text) => {changeSummary(item, text)},
-                                            content: item.Summary}}
-                                        editable={(text) => {changeName(item, text)}}
-                                        >
+                                        summary={ ext(item.Summary)}>
                             <span class="relative">
-                                {item.Title}
+                                {ext(item.Title)}
                                 {#if item.UnreadMessagesNo}
                                     <div class="absolute 
                                             inline-flex items-center justify-center 
                                             w-5 h-5 
-                                            text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full -top-1 -end-5 dark:border-gray-900">
-                                        {item.UnreadMessagesNo}
+                                            text-[10px] font-bold text-white bg-red-500 border-2 border-white rounded-full -top-1 -end-5 dark:border-gray-900">
+                                        {#if item.UnreadMessagesNo <= 9}
+                                            {item.UnreadMessagesNo}
+                                        {:else}
+                                            9+
+                                        {/if}
                                     </div>
                                 {/if}
                             </span>
@@ -411,15 +455,15 @@
                     </svelte:fragment>
                 </SidebarList> 
 
-                <button   class=" mb-2 ml-2 mr-3 w-full
+                <!--button   class=" mb-2 ml-2 mr-3 w-full
                     text-base font-normal 
                     text-stone-500 hover:text-stone-700 dark:text-stone-500 dark:hover:text-stone-400
                     flex items-center" 
                     on:click={onNewDMChannel}
                     >
                     <Icon component={FaPlus} class="inline-block w-4 h-4 mt-0.5 ml-2.5 pr-0.5 mr-4"/>
-                    <p>New direct channel</p>
-                </button>
+                    <p>_; New direct channel; Nuevo canal directo; Nowy kanał bezpośredni</p>
+                </button-->
 
             </SidebarGroup>
         
@@ -432,7 +476,8 @@
 
     {@const hasContent = (generalChannels) || (directChannels)}
     {#if hasContent}
-            <SidebarGroup >
+            <SidebarGroup title={i18n({en: 'Common', es: 'Comunes', pl: 'Wspólne'})}
+                        moreHref="/general-channels">
                 <SidebarList    objects={generalChannels} 
                                 orderAttrib='Order'
                                 bind:this={navGeneralLists}>
@@ -441,19 +486,30 @@
                         <SidebarItem   {href}
                                         icon={FaHashtag}
                                         bind:this={navGeneralItems[idx]}
-                                        operations={(node) => getChannelOperations(node, item, navGeneralItems[idx])}
                                         {item}
-                                        summary={{
-                                            editable: (text) => {changeSummary(item, text)},
-                                            content: item.Summary}}
-                                        editable={(text) => {changeName(item, text)}}>
-                            {item.Title}
+                                        summary={ext(item.Summary)}>
+                           <span class="relative">
+                                 {#if item.GetUnreadMessagesNo}
+                                    <div class="absolute 
+                                            inline-flex items-center justify-center 
+                                            w-5 h-5 
+                                            text-[10px] font-bold text-white bg-red-500 border-2 border-white rounded-full -top-1 -end-5 dark:border-gray-900">
+                                        {#if item.UnreadMessagesNo <= 9}
+                                            {item.UnreadMessagesNo}
+                                        {:else}
+                                            9+
+                                        {/if}
+                                    </div>
+                                {/if}
+                                {ext(item.Title)}
+                            </span>
                         </SidebarItem>
                     </svelte:fragment>
                 </SidebarList> 
             </SidebarGroup>
         
-            <SidebarGroup border>
+            <SidebarGroup title={i18n({en: 'Private', es: 'Privados', pl: 'Prywatne'})}
+                        moreHref="/private-channels">
                 <SidebarList    objects={directChannels} 
                                 orderAttrib='Order'
                                 bind:this={navDirectLists}>
@@ -462,26 +518,36 @@
                         <SidebarItem   {href}
                                         icon={FaRegComment}
                                         bind:this={navDirectItems[idx]}
-                                        operations={(node) => getDirectChannelOperations(node, item, navGeneralItems[idx])}
                                         {item}
-                                        summary={{
-                                            editable: (text) => {changeSummary(item, text)},
-                                            content: item.Summary}}
-                                        editable={(text) => {changeName(item, text)}}>
-                            {item.Title}
+                                        summary={ext(item.Summary)}>
+                            <span class="relative">
+                                {ext(item.Title)}
+                                {#if item.UnreadMessagesNo}
+                                    <div class="absolute 
+                                            inline-flex items-center justify-center 
+                                            w-5 h-5 
+                                            text-[10px] font-bold text-white bg-red-500 border-2 border-white rounded-full -top-1 -end-5 dark:border-gray-900">
+                                        {#if item.UnreadMessagesNo <= 9}
+                                            {item.UnreadMessagesNo}
+                                        {:else}
+                                            9+
+                                        {/if}
+                                    </div>
+                                {/if}
+                            </span>
                         </SidebarItem>
                     </svelte:fragment>
                 </SidebarList> 
 
-                <button   class=" mb-2 ml-2 mr-3 w-full
+                <!--button   class=" mb-2 ml-2 mr-3 w-full
                     text-base font-normal 
                     text-stone-500 hover:text-stone-700 dark:text-stone-500 dark:hover:text-stone-400
                     flex items-center" 
                     on:click={onNewDMChannel}
                     >
                     <Icon component={FaPlus} class="inline-block w-4 h-4 mt-0.5 ml-2.5 pr-0.5 mr-4"/>
-                    <p>New direct channel</p>
-                </button>
+                    <p>_; New direct channel; Nuevo canal directo; Nowy kanał bezpośredni</p>
+                </button-->
                 
             </SidebarGroup>
         
@@ -491,8 +557,8 @@
 {/if}
 {/key}
 
-<Modal  title="Delete"
-        content="Are you sure you want to delete selected channel?"
+<Modal  title={i18n(['Delete', 'Eliminar', 'Usuń'])}
+        content={i18n(["Are you sure you want to delete selected channel?", "¿Está seguro de que desea eliminar el canal seleccionado?", "Czy na pewno chcesz usunąć wybrany kanał?"])}
         icon={FaTrash}
         onOkCallback={deleteChannel}
         bind:this={deleteModal}

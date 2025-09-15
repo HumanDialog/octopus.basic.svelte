@@ -25,12 +25,12 @@
 		ComboItem,
         UI,
         reloadVisibleTags,
-
+        i18n, ext,
 		isDeviceSmallerThan
 
 	} from '@humandialog/forms.svelte';
     import {FaPlus, FaList, FaPen, FaCaretLeft, FaCaretRight, FaTrash, FaArrowsAlt, FaArchive, FaCheck, FaEllipsisH, FaChevronRight,
-        FaAngleDown, FaAngleUp, FaColumns, FaRandom, FaChevronLeft, FaCopy
+        FaAngleDown, FaAngleUp, FaColumns, FaRandom, FaChevronLeft, FaCopy, FaRegCalendar, FaCaretUp, FaCaretDown
     } from 'svelte-icons/fa'
     import MoveOperations from './list.board.move.svelte'
 	import { tick, onMount } from 'svelte';
@@ -247,31 +247,30 @@
     function getViewOperationsP()
     {
         return {
-                    caption: 'View',
+                    caption: '_; View; Ver; Widok',
 
                     operations: [
                         {
-                            caption: 'New Task',
-                            icon: FaPlus,
+                            caption: '_; New task; Nueva tarea; Nowe zadanie',
+                            icon: FaRegCalendar,
                             action: (f) => kanban.add(KanbanColumnBottom, 0),
-                            fab: 'M01',
                             tbr: 'A',
-                            hideToolbarCaption: true
+                            fab: 'M01'
                         },
                         {
-                            caption: 'Add tasks from Clipboard',
-                            //icon: FaRegClipboard, //FaLink, //aRegShareSquare, //
+                            caption: '_; Add tasks from Clipboard; Añadir tareas desde el portapapeles; Dodaj zadania ze schowka',
                             toolbar: BasketPreview,
                             props: {
                                 destinationContainer: listPath,
                                 onRefreshView: (f) => reload(kanban.KEEP_SELECTION)
-                            },
-                      //      fab: 'M01',
-                      //      tbr: 'A'
+                            }
+                        },
+                        {
+                            separator: true
                         },
                         {
                             //icon: FaRandom,
-                            caption: 'Change task list kind',
+                            caption: '_; Change task list kind; Cambiar tipo de lista de tareas; Zmień rodzaj listy zadań',
                             action: changeListKind,
                         //    fab: 'S02',
                         //    tbr: 'C'
@@ -308,7 +307,7 @@
         list.TaskStates.forEach(s => {
             if(result)
                 result += ', '
-            result += s.name
+            result += ext(s.name)
         })
 
         return result
@@ -330,8 +329,8 @@
             //prevKind = template.Kind
 
             menuOperations.push({
-                caption: template.Name,
-                description: template.Summary ?? getDefaultTypeSummary(template),
+                caption: ext(template.Name),
+                description: template.Summary ? ext(template.Summary) : getDefaultTypeSummary(template),
                 action: (f) => askToChangeListKind(template)
             })
         })
@@ -470,36 +469,6 @@
     {
         const columnIdx = taskStates.findIndex(s => s.state == task.State)
         const isOutOfStates = columnIdx < 0
-
-
-        /*const moreOperation = {
-            icon: FaEllipsisH,
-            menu:[
-                ... (task.State == STATE_FINISHED) ? [] : [
-                        {
-                            caption: 'Finish',
-                            icon: FaCheck,
-                            action: (f) => finishTask(task)
-                        },
-                ],
-                {
-                    caption: 'Archive',
-                    icon: FaArchive,
-                    action: (f) => askToArchive(task)
-                },
-                {
-                    caption: 'Delete',
-                    icon: FaTrash,
-                    action: (f) => askToDelete(task)
-                },
-                ... (isOutOfStates) ? [] : [
-                {
-                    caption: 'Column',
-                    menu: getColumnContextMenu(columnIdx, taskStates)
-                }]
-            ]
-        }*/
-
         const mobile = isDeviceSmallerThan("sm")
 
         return {
@@ -508,44 +477,77 @@
             tbr: 'C',
             operations: [
                 {
-                    caption: 'Task',
+                    caption: '_; View; Ver; Widok',
+                    //tbr: 'B',
+                    operations:[
+                        {
+                            caption: '_; New task; Nueva tarea; Nowe zadanie',
+                            icon: FaRegCalendar,
+                            action: (f) => { kanban.add(task) },
+                            fab: "M01",
+                            tbr: 'A'
+                        },
+                        {
+                            caption: '_; Add tasks from Clipboard; Añadir tareas desde el portapapele; Dodaj zadania ze schowka',
+                            toolbar: BasketPreview,
+                            props: {
+                                destinationContainer: listPath,
+                                onRefreshView: (f) => reload(kanban.KEEP_SELECTION)
+                            }
+                        },
+                        {
+                            separator: true
+                        },
+                        {
+                            caption: '_; Change task list kind; Cambiar tipo de lista de tareas; Zmień rodzaj listy zadań',
+                            action: changeListKind,
+                        },
+                    ]
+                },
+                ... isOutOfStates ? [] : [
+                {
+                    caption: '_; Column; Columna; Kolumna',
+                    //tbr: 'B',
+                    operations: getColumnContextMenu(columnIdx, undefined, !mobile)
+                }],
+                {
+                    caption: '_; Task; Tarea; Zadanie',
                     //tbr: 'B',
                     operations: [
                         {
-                            caption: 'Edit...',
+                            caption: '_; Edit...; Editar...; Edytuj...',
                             icon: FaPen,
+                            tbr: 'A',
+                            fab: 'M20',
                             grid: [
                                 {
-                                    caption: 'Name',
+                                    caption: '_; Title; Título; Tytuł',
                                     columns: 2,
                                     action: (f) =>  { kanban.edit(task, 'Title') }
                                 },
                                 {
-                                    caption: 'Summary',
+                                    caption: '_; Summary; Resumen; Podsumowanie',
                                     action: (f) =>  { kanban.edit(task, 'Summary') }
                                 },
                                 {
                                     separator: true
                                 },
                                 {
-                                    caption: 'Responsible',
+                                    caption: '_; Responsible; Responsable; Odpowiedzialny',
                                     action: (f) => { kanban.edit(task, 'Actor') }
                                 },
                                 {
-                                    caption: 'Due Date',
+                                    caption: '_; Due Date; Fecha; Termin',
                                     action: (f) => { kanban.edit(task, 'DueDate') }
                                 },
                                 {
-                                    caption: 'Tag',
+                                    caption: '_; Tag; Etiqueta; Etykieta',
                                     action: (f) => { kanban.edit(task, 'Tags') }
                                 }
-                            ],
-                            fab: 'M20',
-                            tbr: 'A',
-                            hideToolbarCaption: true
+                            ]
                         },
                         {
-                            caption: 'Move...',
+                            caption: '_; Move...; Desplazar...; Przesuń...',
                             icon: FaArrowsAlt,
                             toolbar: MoveOperations,
                             props: {
@@ -555,95 +557,56 @@
                                  //   onMoveUp: isOutOfStates ? undefined : kanban.moveUp,
                                  //   onMoveDown: isOutOfStates ? undefined : kanban.moveDown,
                                     onReplace: kanban.replace},
-                            fab: 'M04',
-                            tbr: 'A',
-                            hideToolbarCaption: true
+                            fab: 'M03',
+                            tbr: 'A'
                         },
                         ... (isOutOfStates) ? [] : [
                         {
-                            caption: 'Move up',
-                            icon: FaAngleUp,
+                            caption: '_; Move up; Deslizar hacia arriba; Przesuń w górę',
+                            icon: FaCaretUp,
                             action: (f) => { kanban.moveUp(task); setTimeout(() => kanban.scrollViewToCard(), 0) },
-                            fab: 'M03',
+                            fab: 'M05',
                             tbr: 'A',
                             hideToolbarCaption: true
                         },
                         {
-                            caption: 'Move down',
-                            icon: FaAngleDown,
+                            caption: '_; Move down; Desplácese hacia abajo; Przesuń w dół',
+                            icon: FaCaretDown,
                             action: (f) => { kanban.moveDown(task); setTimeout(() => kanban.scrollViewToCard(), 0)},
-                            fab: 'M02',
+                            fab: 'M04',
                             tbr: 'A',
                             hideToolbarCaption: true
                         } ],
                         {
-                            icon: FaCopy,   // MdLibraryAdd
-                            caption: 'Add to Clipboard',
+                            caption: '_; Add to Clipboard; Añadir al portapapeles; Dodaj do schowka',
+                            icon: FaCopy, 
                             action: (f) => copyTaskToBasket(task),
-                            fab: 'S10',
+                            fab: 'M30',
                             tbr: 'A', hideToolbarCaption: true
 
                         },
                         ... (task.State == STATE_FINISHED) ? [] : [
                                 {
-                                    caption: 'Finish',
-                                    icon: FaCheck,
+                                    caption: '_; Finish; Finalizar; Zakończ',
+                                    //icon: FaCheck,
                                     action: (f) => finishTask(task),
-                                    fab: 'S20',
-                                    tbr: 'A', hideToolbarCaption: true
+                                    //fab: 'S20',
+                                    //tbr: 'A', hideToolbarCaption: true
                                 }
                         ],
                         {
-                            caption: 'Archive',
+                            caption: '_; Archive; Archivar; Zarchiwizuj',
                             //icon: FaArchive,
                             action: (f) => askToArchive(task)
                         },
                         {
-                            caption: 'Delete',
+                            caption: '_; Delete; Eliminar; Usuń',
                             //icon: FaTrash,
                             action: (f) => askToDelete(task)
                         }
                     ]
-                },
-                {
-                    caption: 'View',
-                    //tbr: 'B',
-                    operations:[
-                        {
-                            caption: 'New Task',
-                            icon: FaPlus,
-                            action: (f) => { kanban.add(task) },
-                            fab: "M01",
-                            tbr: 'A',
-                            hideToolbarCaption: true
-                        },
-                        {
-                            caption: 'Add tasks from Clipboard',
-                            //icon: FaRegClipboard, //FaLink, //aRegShareSquare, //
-                            toolbar: BasketPreview,
-                            props: {
-                                destinationContainer: listPath,
-                                onRefreshView: (f) => reload(kanban.KEEP_SELECTION)
-                            },
-                           // fab: 'M01',
-                           // tbr: 'A'
-                        },
-                        {
-                            //icon: FaRandom,
-                            caption: 'Change task list kind',
-                            action: changeListKind,
-                        //    fab: 'S02',
-                        //    tbr: 'C'
-                        },
-                        //switchToListOperation()
-                    ]
-                },
-                ... isOutOfStates ? [] : [
-                {
-                    caption: 'Column',
-                    //tbr: 'B',
-                    operations: getColumnContextMenu(columnIdx, undefined, !mobile)
-                }]
+                }
+                
 
             ]
 
@@ -655,7 +618,7 @@
     {
         return [
             {
-                caption: 'Edit column name',
+                caption: '_; Edit column name; Editar nombre de columna; Edytuj nazwę kolumny',
                 //icon: FaPen, //inColumnContext ? FaPen : undefined,
                 action: (f) => kanban.editColumnName(columnIdx)
             },
@@ -665,17 +628,17 @@
                 action: (f) => setColumnAsFinishing(columnIdx)
             },*/
             {
-                caption: 'Move column left',
+                caption: '_; Move column left; Mueve la columna hacia la izquierda; Przesuń kolumnę w lewo',
                 //icon: FaCaretLeft, //inColumnContext ? FaCaretLeft : undefined,
                 action: (f) => onColumnMoveLeft(columnIdx)
             },
             {
-                caption: 'Move column right',
+                caption: '_; Move column right; Mueve la columna hacia la derecha; Przesuń kolumnę w prawo',
                 //icon: FaCaretRight, //inColumnContext ? FaCaretRight : undefined,
                 action: (f) => onColumnMoveRight(columnIdx)
             },
             {
-                caption:  'Delete column',
+                caption:  '_; Delete column; Eliminar columna; Usuń kolumnę',
                 //icon: FaTrash, //inColumnContext ? FaTrash : undefined,
                // menu: getColumnDeleteOptions(columnIdx, taskState)
                action: (f) => deleteColumnAndSetCardsState(columnIdx, 0)
@@ -684,7 +647,7 @@
                 separator: true
             },
             {
-                caption: 'Add column',
+                caption: '_; Add column; Añadir columna; Dodaj kolumnę',
                 //icon: FaPlus, //inColumnContext ? FaPlus : undefined,
                 action: (f) => addColumn("", columnIdx+1)
             }
@@ -702,19 +665,18 @@
             tbr: 'C',
             operations: [
                 {
-                    caption: 'View',
+                    caption: '_; View; Ver; Widok',
                     //tbr: 'B',
                     operations: [
                         {
-                            caption: 'New Task',
-                            icon: FaPlus,
+                            caption: '_; New Task; Nueva tarea; Nowe zadanie',
+                            icon: FaRegCalendar,
                             action: (f) => kanban.add(KanbanColumnBottom, columnIdx),
                             fab: 'M01',
-                            tbr: 'A',
-                            hideToolbarCaption: true
+                            tbr: 'A'
                         },
                         {
-                            caption: 'Add tasks from Clipboard',
+                            caption: '_; Add tasks from Clipboard; Añadir tareas desde el portapapeles; Dodaj zadania ze schowka',
                             //icon: FaRegClipboard, //FaLink, //aRegShareSquare, //
                             toolbar: BasketPreview,
                             props: {
@@ -725,8 +687,11 @@
                            // tbr: 'A'
                         },
                         {
+                            separator: true
+                        },
+                        {
                             //icon: FaRandom,
-                            caption: 'Change task list kind',
+                            caption: '_; Change task list kind; Cambiar tipo de lista de tareas; Zmień rodzaj listy zadań',
                             action: changeListKind,
                         //    fab: 'S02',
                         //    tbr: 'C'
@@ -927,7 +892,7 @@
 
     let addColumnDialog;
     let newColumnProps = {
-        name: 'New column',
+        name: '_; New column; Nueva columna; Nowa kolumna',
         state: 0
     }
     let newColumnStates = []
@@ -964,7 +929,7 @@
                             name: newColumnProps.name
                         }, onErrorShowAlert);
 
-        newColumnProps.name = 'New column'
+        newColumnProps.name = '_; New column; Nueva columna; Nowa kolumna'
         newColumnProps.state = 0
 
         if(res && Array.isArray(res))
@@ -984,7 +949,7 @@
     function onNewProcessColumnCanceled()
     {
         addColumnDialog.hide();
-        newColumnProps.name = 'New column'
+        newColumnProps.name = '_; New column; Nueva columna; Nowa kolumna'
         newColumnProps.state = 0
     }
 
@@ -993,11 +958,13 @@
         numericStateElement?.refresh();
     }
 
+    let otherCaption = '_; <Other>; <Otros>; <Inne>'
+
 </script>
 
 <svelte:head>
     {#if currentList && currentList.Name}
-        <title>{currentList.Name} | {__APP_TITLE__}</title>
+        <title>{ext(currentList.Name)} | {__APP_TITLE__}</title>
     {:else}
         <title>{__APP_TITLE__}</title>
     {/if}
@@ -1009,11 +976,11 @@
 		self={currentList}
 		toolbarOperations={getPageOperations()}
 		clearsContext="props sel"
-		title={currentList.Name}
+		title={ext(currentList.Name)}
 	>
 
 		<Kanban class="grow-0"
-                title={currentList.Name}
+                title={ext(currentList.Name)}
                 bind:this={kanban}>
 
             <KanbanSource self={currentList}
@@ -1023,7 +990,7 @@
 
 
                 {#each taskStates as taskState, columnIdx (taskState.name+taskState.state)}
-                    <KanbanColumn   title={taskState.name}
+                    <KanbanColumn   title={ext(taskState.name)}
                                     state={taskState.state}
                                     operations={getColumnOperations(columnIdx, taskState)}
                                     onTitleChanged={(title) => onColumnNameChanged(columnIdx, title)}
@@ -1031,7 +998,7 @@
                 {/each}
 
 
-            <KanbanColumn   title="<Other>"
+            <KanbanColumn   title={otherCaption}
                             state={-1} />
 
 
@@ -1059,7 +1026,7 @@
             <a  href={`/tasklist/${listId}?archivedTasks`}
                 use:link
                 class="hover:underline">
-                    Show archived tasks
+                    _; Show archived tasks; Mostrar tareas archivadas; Pokaż zarchiwizowane zadania
                     <div class="inline-block mt-1.5 w-3 h-3"><FaChevronRight/></div>
             </a>
         </div>
@@ -1070,49 +1037,49 @@
 {/if}
 {/key}
 
-<Modal  title="Delete"
-        content="Are you sure you want to delete selected task?"
+<Modal  title={i18n(['Delete', 'Eliminar', 'Usuń'])}
+        content={i18n(["Are you sure you want to delete selected task?", "¿Está seguro de que desea eliminar la tarea seleccionada?", "Czy na pewno chcesz usunąć wybrane zadanie?"])}
         icon={FaTrash}
         onOkCallback={deleteTask}
         bind:this={deleteModal}
         />
 
-<Modal  title="Archive"
-        content="Are you sure you want to archive selected task?"
+<Modal  title={i18n(['Archive', 'Archivar', 'Zarchiwizuj'])}
+        content={i18n(["Are you sure you want to archive selected task?", "¿Está seguro de que desea archivar la tarea seleccionada?", "Czy na pewno chcesz zarchiwizować wybrane zadanie?"])}
         icon={FaArchive}
         onOkCallback={archiveTask}
         bind:this={archiveModal}
         />
 
-<Modal  title="Change list kind"
-        content="Are you sure you want to change current list kind?"
+<Modal  title={i18n(['Change list kind', 'Cambiar tipo de lista', 'Zmień rodzaj listy'])}
+        content={i18n(["Are you sure you want to change current list kind?", "¿Estás seguro de que deseas cambiar el tipo de lista actual?", "Czy na pewno chcesz zmienić aktualny rodzaj listy?"])}
         icon={FaRandom}
         onOkCallback={handleChangeListKind}
-        okCaption="Change"
+        okCaption={i18n(['Change', 'Cambiar', 'Zmień'])}
         bind:this={changeKindModal}
         />
 
 {#key newColumnStates}
-<Modal title='Add column'
-        okCaption="Add"
+<Modal  title={i18n(['Add column', 'Añadir columna', 'Dodaj kolumnę'])}
+        okCaption={i18n(['Add', 'Añadir', 'Dodaj'])}
         onOkCallback={onNewProcessColumnRequested}
         onCancelCallback={onNewProcessColumnCanceled}
         icon={FaColumns}
         bind:this={addColumnDialog}>
 
-    <Input  label='Name'
+    <Input  label={i18n(['Name', 'Nombre', 'Nazwa'])}
         placeholder=''
         self={newColumnProps}
         a="name"/>
 
     <section class="mt-2 grid grid-cols-2 gap-2">
-        <Combo label='State'
+        <Combo label={i18n(['State', 'Estado', 'Stan'])}
                 self={newColumnProps}
                 a='state'
                 changed={onNewColumnStateSelected}>
 
             {#each newColumnStates as column}
-                <ComboItem key={column.state} name={column.name}/>
+                <ComboItem key={column.state} name={ext(column.name)}/>
             {/each}
         </Combo>
 
@@ -1128,7 +1095,7 @@
 
             {#if stateValueVisible}
                 <Input class="inline-block"
-                    label='State value'
+                    label={i18n(['State value', 'Valor del estado', 'Wartość stanu'])}
                     placeholder=''
                     self={newColumnProps}
                     a="state"

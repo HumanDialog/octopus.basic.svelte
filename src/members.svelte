@@ -1,7 +1,7 @@
 <script>
    
 	import { reef, session, signInHRef } from '@humandialog/auth.svelte';
-    import {MembersPage, onErrorShowAlert} from '@humandialog/forms.svelte';
+    import {MembersPage, onErrorShowAlert, i18n} from '@humandialog/forms.svelte';
 	import { onMount } from 'svelte';
 	
     let users = []
@@ -29,10 +29,11 @@
         return () => {}
     })
 
+    const title = '_; Members; Miembros; Członkowie'
   </script>
 
 <svelte:head>
-    <title>Members | {__APP_TITLE__}</title>
+    <title>{title} | {__APP_TITLE__}</title>
 </svelte:head>
 
 {#if users && users.length > 0}

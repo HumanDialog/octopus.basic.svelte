@@ -1,0 +1,41 @@
+{
+		"Book": {
+			"Title": "Octopus Blog",
+			"FirstPage": "octopus-the-kanban-board",
+			"ChaptersNo": "1",
+			"PagesNo": "1",
+			"Id" : "",
+			"Tags": { "MTR":"0 min" },
+			"TOC" : [
+            {
+                "Chapter": "Octopus",
+				"Id": "octopus-the-kanban-board",
+                "Pages": [
+	                    {
+                        "Page": "The Kanban Board",
+                        "Id": "octopus-the-kanban-board"
+			          	}
+                ]
+            }
+        ],
+
+		"Content":{
+	            "octopus-the-kanban-board": {
+					"ChapterNo": 0,
+					"PageNo": 0,
+					"SubjectsNo": "0",
+					"PrevPage": "",
+					"PrevPageId": "",
+					"NextPage": "",
+					"NextPageId": "",
+					"Tags": { "author":"Adam Gajewski", "date":"21.07.2025", "MTR":"11 min", "href":"/blog/kanban-boards", "img":"/blog/kanban-boards/image3.jpg" },
+			"Page": [
+						{
+							"Kind": "HTML",
+							"HTML": "<h1 hidden>Octopus</h1><h2 id=\"octopus-the-kanban-board\">The Kanban Board</h2><p>A Guide to Visually Managing Work and Increasing Efficiency</p><p></p>"
+					}
+				]
+			}
+		}
+	}
+}
