@@ -220,7 +220,7 @@
                         '/newthread/*' :{ component: NewThread },
                         '/forum/*'   :  { component: Forum },
                         '/profile/*':   {component: Profile},
-                        '/profile':     {component: Profile}
+                        '/profile':     {component: Profile},
 						'/alllists':    {component: AllTaskLists},
                         '/group-folders': {component: GroupFolders},
                         '/general-channels': {component: GeneralChannels},
@@ -238,8 +238,8 @@
                             condition: () => $session.isActive
                         },
                         {
-                        //    caption: '_; Members; Miembros; Cz³onkowie',
-                            captionFunc: () => '_; Members; Miembros; Cz³onkowie',
+                        //    caption: '_; Members; Miembros; Czï¿½onkowie',
+                            captionFunc: () => '_; Members; Miembros; Czï¿½onkowie',
                             icon: FaUsersCog,
                             action: (f) => { push(`/members`) },
                             condition: () => $session.authAccessGroup() != 0
@@ -295,8 +295,8 @@
                 mainToolbar : {
                     customOperations:[
                         {
-                        //    caption: '_; Leave guest session; Salir de la sesión de invitado; Opuœæ sesjê goœcia',
-                            captionFunc: () => '_; Leave guest session; Salir de la sesión de invitado; Opuœæ sesjê goœcia',
+                        //    caption: '_; Leave guest session; Salir de la sesiï¿½n de invitado; Opuï¿½ï¿½ sesjï¿½ goï¿½cia',
+                            captionFunc: () => '_; Leave guest session; Salir de la sesiï¿½n de invitado; Opuï¿½ï¿½ sesjï¿½ goï¿½cia',
                             icon: FaSignOutAlt,
                             action: (f) => {
                                 $session.isUnauthorizedGuest = false

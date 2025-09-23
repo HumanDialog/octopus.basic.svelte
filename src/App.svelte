@@ -70,7 +70,7 @@
     routes.set('/contact',              wrap({ asyncComponent: () => import('./landing/contact.svelte')}))
     routes.set('/privacy-policy',       wrap({ asyncComponent: () => import('./landing/privacy.policy.svelte')})) 
     routes.set('/terms-and-conditions', wrap({ asyncComponent: () => import('./landing/terms.and.conditions.svelte')}))
-    routes.set('/doc/*',                wrap({ asyncComponent: () => import('./tilos/static.doc.svelte')}))
+  //  routes.set('/doc/*',                wrap({ asyncComponent: () => import('./tilos/static.doc.svelte')}))
     routes.set('/blog',                 wrap({ asyncComponent: () => import('./landing/blog/blog.svelte')}))
     routes.set('/blog/*',               wrap({ asyncComponent: () => import('./landing/blog/article.svelte')}))
     routes.set(r, AppView)
